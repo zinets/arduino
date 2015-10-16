@@ -1,0 +1,25 @@
+<html>
+<body>
+	<script type="text/javascript">
+		function c() {
+			d = new Date();//Date.now() / 1000;
+
+			// alert("offset " + Date.getTimezoneOffset());
+			// d += d.getTimezoneOffset() * 60;
+			document.f.d.value = d.getTimezoneOffset() * 60;      
+		}
+	</script>
+	<h1>Сейчас</h1>
+	<form name="f" onsubmit="c()">
+		<input type=hidden name="d">
+		Время: 00:00:00 21.01.15 <input type="submit" value="Установить"><br>
+		Температура: 23,4 С<br>
+		Давление: 768.5 мм рт.ст.<br>
+	</form>
+</body>
+</html>
+
+HTTP/1.0 200 OK 
+Content-Type: text/html
+Content-Length: 38
+
