@@ -1,0 +1,17 @@
+<html>
+<head>
+	<SCRIPT LANGUAGE="JavaScript">
+    function c() {
+    	document.f.d.value = Date.now();      
+    }
+    </SCRIPT>
+</head>
+<body>
+	<h1>Hello</h1>
+
+	<form name="f" onsubmit="c()">
+		<input type=hidden name="d">
+		<input type="submit" value="update">
+	</form>
+</body>
+</html>
