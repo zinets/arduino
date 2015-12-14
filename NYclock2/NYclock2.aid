@@ -1,0 +1,36 @@
+<AID Version="2.0.12.0" Device="ATmega328P">
+  <Options>
+    <Frequency>1,6E+07</Frequency>
+    <Package>TQFP</Package>
+    <PinSort>PinNumber</PinSort>
+    <CodeFileName>NYclock2.ino</CodeFileName>
+    <HeaderFileName>NYclock2.h</HeaderFileName>
+    <AssumeDefaultState>True</AssumeDefaultState>
+    <WriteUnmodifiedBits>True</WriteUnmodifiedBits>
+    <UnusedPortPins>Input</UnusedPortPins>
+  </Options>
+  <Pin Pin="PB2" Function="PB2" />
+  <Pin Pin="PC0" Function="PC0" />
+  <Pin Pin="PC1" Function="PC1" />
+  <Pin Pin="PC2" Function="PC2" />
+  <Pin Pin="PC3" Function="PC3" />
+  <BitField BitField="WGM2" Value="2" />
+  <BitField BitField="CS2" Value="5" />
+  <BitField BitField="OCRA2" Value="249" />
+  <BitField BitField="OCIEA2" Value="1" />
+  <Bit Register="PORTB" Bit="PORTB2" Value="0" Pin="PB2" Function="PB2" />
+  <Bit Register="DDRB" Bit="DDB2" Value="1" Pin="PB2" Function="PB2" />
+  <Bit Register="PORTC" Bit="PORTC0" Value="0" Pin="PC0" Function="PC0" />
+  <Bit Register="PORTC" Bit="PORTC1" Value="0" Pin="PC1" Function="PC1" />
+  <Bit Register="PORTC" Bit="PORTC2" Value="0" Pin="PC2" Function="PC2" />
+  <Bit Register="PORTC" Bit="PORTC3" Value="0" Pin="PC3" Function="PC3" />
+  <Bit Register="DDRC" Bit="DDC0" Value="1" Pin="PC0" Function="PC0" />
+  <Bit Register="DDRC" Bit="DDC1" Value="1" Pin="PC1" Function="PC1" />
+  <Bit Register="DDRC" Bit="DDC2" Value="1" Pin="PC2" Function="PC2" />
+  <Bit Register="DDRC" Bit="DDC3" Value="1" Pin="PC3" Function="PC3" />
+  <Item Class="Port" Type="Variable" Name="LATCH" Comment="" StartBit="2" NumBits="1" Pin="PB2" Function="PB2" />
+  <Item Class="Port" Type="Variable" Name="CAT1" Comment="Reserved for pin PC0" StartBit="0" NumBits="1" Pin="PC0" Function="PC0" />
+  <Item Class="Port" Type="Variable" Name="CAT2" Comment="" StartBit="1" NumBits="1" Pin="PC1" Function="PC1" />
+  <Item Class="Port" Type="Variable" Name="CAT3" Comment="" StartBit="2" NumBits="1" Pin="PC2" Function="PC2" />
+  <Item Class="Port" Type="Variable" Name="CAT4" Comment="" StartBit="3" NumBits="1" Pin="PC3" Function="PC3" />
+</AID>
