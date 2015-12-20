@@ -38,6 +38,8 @@ void setup() {
 	// setup leds
 	pinMode(LED_PLUS, OUTPUT);
 	pinMode(LED_MINUS, OUTPUT);
+	digitalWrite(LED_PLUS, LOW);
+	digitalWrite(LED_MINUS, HIGH);
 
 	// setup pins for buttons
 	for (int x = 0; x < NUM_COLS; x++) {
