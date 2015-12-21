@@ -24,7 +24,7 @@ void setup() {
 }
 // List of patterns to cycle through.  Each is defined as a separate function below.
 typedef uint8_t (*SimplePatternList[])();
-SimplePatternList gPatterns = { approved1, approved2, /*rainbowWithGlitter, confetti, sinelon, juggle, bpm*/ };
+SimplePatternList gPatterns = { approved1, approved2, };
 
 uint8_t gCurrentPatternNumber = 0; // Index number of which pattern is current
 uint8_t gHue = 0; // rotating "base color" used by many of the patterns
@@ -77,13 +77,6 @@ uint8_t approved2 () {
   return 1000 / 25;
 }
 
-void rainbowWithGlitter() 
-{
-  // built-in FastLED rainbow, plus some random sparkly glitter
-  rainbow();
-  addGlitter(80);
-}
-
 void addGlitter( fract8 chanceOfGlitter) 
 {
   if( random8() < chanceOfGlitter) {
@@ -91,20 +84,22 @@ void addGlitter( fract8 chanceOfGlitter)
   }
 }
 
-void confetti() 
-{
+uint8_t confetti() {
   // random colored speckles that blink in and fade smoothly
   fadeToBlackBy( leds, NUM_LEDS, 10);
   int pos = random16(NUM_LEDS);
   leds[pos] += CHSV( gHue + random8(64), 200, 255);
+
+  return 1000 / 25;
 }
 
-void sinelon()
+uint8_t sinelon()
 {
   // a colored dot sweeping back and forth, with fading trails
   fadeToBlackBy( leds, NUM_LEDS, 20);
   int pos = beatsin16(13,0,NUM_LEDS);
   leds[pos] += CHSV( gHue, 255, 192);
+  return 0;
 }
 
 void bpm()
@@ -118,7 +113,7 @@ void bpm()
   }
 }
 
-void juggle() {
+uint8_t juggle() {
   // eight colored dots, weaving in and out of sync with each other
   fadeToBlackBy( leds, NUM_LEDS, 20);
   byte dothue = 0;
@@ -126,4 +121,5 @@ void juggle() {
     leds[beatsin16(i+7,0,NUM_LEDS)] |= CHSV(dothue, 200, 255);
     dothue += 32;
   }
+  return 500;
 }
