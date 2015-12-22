@@ -83,10 +83,10 @@ CRGB leds[NUM_LEDS];
 
 // Background color for 'unlit' pixels
 // Can be set to CRGB::Black if desired.
-CRGB gBackgroundColor = CRGB(3,0,6);
+CRGB gBackgroundColor = CRGB::Black; //CRGB(0,0,6);
 
 // How often to change color palettes.
-#define SECONDS_PER_PALETTE  20
+#define SECONDS_PER_PALETTE  45
 
 // Also: toward the bottom of the file is an array 
 // called "ActivePaletteList" which controls which color
@@ -229,10 +229,17 @@ const TProgmemRGBPalette16 Snow_p FL_PROGMEM =
    0x404040, 0x404040, 0x404040, 0x404040,
    0x404040, 0x404040, 0x404040, 0xFFFFFF };
 
+const TProgmemRGBPalette16 RGB_p FL_PROGMEM = {
+  CRGB::Red,   CRGB::Green, CRGB::Blue,  CRGB::Red, 
+  CRGB::Green, CRGB::Blue,  CRGB::Red,   CRGB::Green, 
+  CRGB::Blue,  CRGB::Red,   CRGB::Green, CRGB::Blue, 
+  CRGB::Red,   CRGB::Green, CRGB::Blue,  CRGB::Red, 
+};
 
 // Add or remove palette names from this list to control which color
 // palettes are used, and in what order.
 const TProgmemRGBPalette16* ActivePaletteList[] = {
+  &RGB_p,
   &RedGreenWhite_p,
   &BlueWhite_p,
   &RainbowColors_p,
