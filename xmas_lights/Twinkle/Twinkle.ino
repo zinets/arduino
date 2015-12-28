@@ -7,6 +7,7 @@
 #define COLOR_ORDER GRB
 #define DATA_PIN      6
 //#define CLK_PIN     4
+#define MODE_PIN      13
 
 
 //  TwinkleFOX: Twinkling 'holiday' lights that fade in and out.
@@ -97,9 +98,15 @@ CRGB gBackgroundColor = CRGB::Black; //CRGB(0,0,6);
 CRGBPalette16 gCurrentPalette;
 CRGBPalette16 gTargetPalette;
 
+#define MODE_DAY    1
+#define MODE_NIGHT  0
+boolean curMode = MODE_DAY;
+
 void setup() {
   delay( 3000 ); //safety startup delay
-  
+
+  pinMode(MODE_PIN, INPUT);
+  digitalWrite(MODE_PIN, HIGH);
   FastLED.addLeds<LED_TYPE,DATA_PIN,COLOR_ORDER>(leds, NUM_LEDS)
     .setCorrection(TypicalLEDStrip);
 
@@ -120,6 +127,16 @@ void loop()
   drawTwinkles( leds, NUM_LEDS);
 
   FastLED.show();
+
+  boolean mode = digitalRead(MODE_PIN);
+  if (mode != curMode) {
+    curMode = mode;
+    if (curMode == MODE_DAY) {
+        FastLED.setBrightness(200);
+    } else {
+        FastLED.setBrightness(100);
+    }
+  }
 }
 
 
@@ -236,10 +253,17 @@ const TProgmemRGBPalette16 RGB_p FL_PROGMEM = {
   CRGB::Red,   CRGB::Green, CRGB::Blue,  CRGB::Red, 
 };
 
+const TProgmemRGBPalette16 White_p FL_PROGMEM = {
+  CRGB::Gray, CRGB::Gray, CRGB::Gray, CRGB::Gray, 
+  CRGB::Gray, CRGB::Gray, CRGB::Gray, CRGB::Gray, 
+  CRGB::Gray, CRGB::Gray, CRGB::Gray, CRGB::Gray, 
+  CRGB::Gray, CRGB::Gray, CRGB::Gray, CRGB::Gray};
+
 // Add or remove palette names from this list to control which color
 // palettes are used, and in what order.
 const TProgmemRGBPalette16* ActivePaletteList[] = {
-  &RGB_p,
+  &RainbowStripeColors_p,
+  &LavaColors_p,
   &RedGreenWhite_p,
   &BlueWhite_p,
   &RainbowColors_p,
