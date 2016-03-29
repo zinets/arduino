@@ -263,14 +263,21 @@ const TProgmemRGBPalette16 White_p FL_PROGMEM = {
 // palettes are used, and in what order.
 const TProgmemRGBPalette16* ActivePaletteList[] = {
   &RainbowStripeColors_p,
-  &LavaColors_p,
+  &RainbowStripeColors_p,
+//  &LavaColors_p,
   &RedGreenWhite_p,
+  &RainbowStripeColors_p,
+  &RainbowStripeColors_p,
   &BlueWhite_p,
-  &RainbowColors_p,
-  &FairyLight_p,
-  &RedWhite_p,
+  &RainbowStripeColors_p,
+  &RainbowStripeColors_p,
+//  &RainbowColors_p,
+//  &FairyLight_p,
+//  &RedWhite_p,
   &PartyColors_p,
-  &Snow_p
+  &RainbowStripeColors_p,
+  &RainbowStripeColors_p,
+//  &Snow_p
 };
 
 
