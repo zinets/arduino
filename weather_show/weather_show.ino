@@ -8,6 +8,8 @@
 #define OLED_CS    12
 #define OLED_RESET 13
 
+#define DEGREE_SYMBOL char(176)
+
 U8GLIB_SSD1306_128X64 u8g(OLED_CLK, OLED_MOSI, OLED_CS, OLED_DC, OLED_RESET);
 typedef enum Conditions { 
   ClearDay, 
@@ -42,28 +44,41 @@ IconData icons[ConditionsCount] = {
   {iconWidth: partly_cloudy_night_width, iconHeight: partly_cloudy_night_height, iconName: partly_cloudy_night_bits}, // PartlyCloudyNight,
 };
 
-void draw(void) {
-  u8g.drawXBMP(12, 12, clear_day_width, clear_day_height, clear_day_bits);
-}
-
-void drawPage1(void) {
-  u8g.drawXBMP(12, 12, clear_day_width, clear_day_height, clear_day_bits);
-}
-
-void drawPage2(void) {
-  u8g.drawXBMP(12, (64 - WiFi_Logo_height) / 2, WiFi_Logo_width, WiFi_Logo_height, WiFi_Logo_bits);
-}
+  static u8 counter = 0;
 
 void setup(void) {
+  u8g.setFont(u8g_font_unifont);
+  u8g.setFontPosTop();
+}
+
+void draw(void) {
+  
+  u8g.drawStr(0, 1, "Hello");
+  u8g.drawHLine(0, 1+14, 40);
+  u8g.setScale2x2();            // Scale up all draw procedures
+  u8g.drawStr(0, 12, "Hello");      // actual display position is (0,24)
+  u8g.drawHLine(0, 12+14, 40);      // All other procedures are also affected
+  u8g.undoScale();          // IMPORTANT: Switch back to normal mode
+}
+
+void drawCurrentCondition() {
+    IconData iconData = icons[counter];
+    u8g.drawXBMP(2, (64 - iconData.iconHeight) / 2, iconData.iconWidth, iconData.iconHeight, iconData.iconName);
+
+    String str = "(" + String(00) + "/" + String(99) + String (DEGREE_SYMBOL) + "C)";
+    u8g.setPrintPos(56, 40);
+    u8g.print(str);
+    
+    u8g.setScale2x2();
+    u8g.drawStr(32, 0, "8 C"); 
+    u8g.undoScale();
 }
 
 void loop(void) {
-  static u8 counter = 0;
-
   u8g.firstPage();
   do {
-    IconData iconData = icons[counter];
-    u8g.drawXBMP(12, (64 - iconData.iconHeight) / 2, iconData.iconWidth, iconData.iconHeight, iconData.iconName);
+    drawCurrentCondition();
+    //draw();
   } while ( u8g.nextPage() );
 
   if (++counter >= ConditionsCount) {
