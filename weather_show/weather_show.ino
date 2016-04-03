@@ -11,8 +11,7 @@
 #define DEGREE_SYMBOL       char(176)
 #define MARKER_SEPARATOR    ';'
 #define MARKER_TEMP         't'
-#define MARKER_MIN_TEMP     'm'
-#define MARKER_MAX_TEMP     'x'
+#define MARKER_FORECAST_TEMP 'f'
 
 U8GLIB_SSD1306_128X64 u8g(OLED_CLK, OLED_MOSI, OLED_CS, OLED_DC, OLED_RESET);
 typedef enum Conditions { 
@@ -28,13 +27,6 @@ typedef enum Conditions {
   PartlyCloudyNight,
   ConditionsCount,
 } Condition;
-
-typedef enum SerialState {
-    SerialStateReady,
-    SerialStateReadingTemperature,
-    SerialStateReadingMinTemperature,
-    SerialStateReadingMaxTemperature,
-} SerialState;
 
 typedef struct IconData {
   u8 iconWidth;
@@ -55,15 +47,15 @@ IconData icons[ConditionsCount] = {
   {iconWidth: partly_cloudy_night_width, iconHeight: partly_cloudy_night_height, iconName: partly_cloudy_night_bits}, // PartlyCloudyNight,
 };
 
-String currentTemp = "";
-String minTemp = "";
-String maxTemp = ""; 
+String currentTemp = "12";
+String tomorrowTemp = "20";
 Condition currentCondition;
 int secondsCount = 0;
 
 typedef enum State {
   StateStarting,
-  StateCurrentTemperature,
+  StateCurrentCondition,
+  StateTommorowCondition,
   StateCount,
 } State;
 
@@ -99,18 +91,30 @@ void drawCurrentCondition() {
     IconData iconData = icons[currentCondition];
     u8g.drawXBMP(2, (64 - iconData.iconHeight) / 2, iconData.iconWidth, iconData.iconHeight, iconData.iconName);
 
-    String str = "(" + minTemp + "/" + maxTemp + String (DEGREE_SYMBOL) + "C)";
-    u8g.setPrintPos(56, 40);
-    u8g.print(str);
-    
     u8g.setScale2x2();
-    u8g.setPrintPos(32, 0);
-    str = currentTemp + " C)"; 
+    u8g.setPrintPos(32, 10);
+    String str = currentTemp + String (DEGREE_SYMBOL) + "C"; 
     u8g.print(str);
     u8g.undoScale();
 }
 
+void drawTomorrowCondition() {
+  IconData iconData = icons[ClearDay];
+    u8g.drawXBMP(2, (64 - iconData.iconHeight) / 2, iconData.iconWidth, iconData.iconHeight, iconData.iconName);
+    
+    u8g.drawStr(56, 10, "Tomorrow");
+    u8g.setPrintPos(62, 30);
+    String str = tomorrowTemp + String (DEGREE_SYMBOL) + "C"; 
+    u8g.print(str);
+}
+
 void readSerial() {  
+  typedef enum SerialState {
+    SerialStateReady,
+    SerialStateReadingTemperature,
+    SerialStateReadingFTemperature,
+  } SerialState;
+
   String res = "";
   SerialState serialState = SerialStateReady;
   while (Serial.available()) {
@@ -122,11 +126,8 @@ void readSerial() {
           case MARKER_TEMP:
             serialState = SerialStateReadingTemperature;
             break;
-          case MARKER_MIN_TEMP:
-            serialState = SerialStateReadingMinTemperature;
-            break;
-          case MARKER_MAX_TEMP:
-            serialState = SerialStateReadingMaxTemperature;
+          case MARKER_FORECAST_TEMP:
+            serialState = SerialStateReadingFTemperature;
             break;
           default:
             break;
@@ -141,18 +142,9 @@ void readSerial() {
           res = res + char(ch);          
         }
       } break;
-      case SerialStateReadingMaxTemperature: {
+      case SerialStateReadingFTemperature: {
         if (ch == MARKER_SEPARATOR) {
-          maxTemp = res;
-          res = "";
-          serialState = SerialStateReady;
-        } else {
-          res = res + char(ch);          
-        }
-      } break;
-      case SerialStateReadingMinTemperature: {
-        if (ch == MARKER_SEPARATOR) {
-          minTemp = res;
+          tomorrowTemp = res;
           res = "";
           serialState = SerialStateReady;
         } else {
@@ -174,9 +166,12 @@ void loop(void) {
       case StateStarting:
         drawStartLogo();
         break;
-      case StateCurrentTemperature:
+      case StateCurrentCondition:
         drawCurrentCondition();
         break;
+      case StateTommorowCondition:
+        drawTomorrowCondition();
+        break; 
       default:
         break;
     }
@@ -199,7 +194,7 @@ void loop(void) {
   }
 
   if (currentState >= StateCount) {
-    currentState = StateCurrentTemperature;
+    currentState = StateCurrentCondition;
   }
 }
 
