@@ -9,6 +9,7 @@
 #define OLED_RESET 13
 
 #define DEGREE_SYMBOL char(176)
+#define MARKER_TEMP 't'
 
 U8GLIB_SSD1306_128X64 u8g(OLED_CLK, OLED_MOSI, OLED_CS, OLED_DC, OLED_RESET);
 typedef enum Conditions { 
@@ -44,47 +45,57 @@ IconData icons[ConditionsCount] = {
   {iconWidth: partly_cloudy_night_width, iconHeight: partly_cloudy_night_height, iconName: partly_cloudy_night_bits}, // PartlyCloudyNight,
 };
 
-  static u8 counter = 0;
+u8 currentTemp;
+u8 minTemp;
+u8 maxTemp; 
+Condition currentCondition;
 
 void setup(void) {
   u8g.setFont(u8g_font_unifont);
   u8g.setFontPosTop();
-}
 
-void draw(void) {
-  
-  u8g.drawStr(0, 1, "Hello");
-  u8g.drawHLine(0, 1+14, 40);
-  u8g.setScale2x2();            // Scale up all draw procedures
-  u8g.drawStr(0, 12, "Hello");      // actual display position is (0,24)
-  u8g.drawHLine(0, 12+14, 40);      // All other procedures are also affected
-  u8g.undoScale();          // IMPORTANT: Switch back to normal mode
+  Serial.begin(115200);
+  Serial.println("Inited");
+
+  currentCondition = Rain;
+  currentTemp = 12;
+  minTemp = 9;
+  maxTemp = 20;
+
 }
 
 void drawCurrentCondition() {
-    IconData iconData = icons[counter];
+    IconData iconData = icons[currentCondition];
     u8g.drawXBMP(2, (64 - iconData.iconHeight) / 2, iconData.iconWidth, iconData.iconHeight, iconData.iconName);
 
-    String str = "(" + String(00) + "/" + String(99) + String (DEGREE_SYMBOL) + "C)";
+    String str = "(" + String(minTemp) + "/" + String(maxTemp) + " " + String (DEGREE_SYMBOL) + "C)";
     u8g.setPrintPos(56, 40);
     u8g.print(str);
     
     u8g.setScale2x2();
-    u8g.drawStr(32, 0, "8 C"); 
+    u8g.setPrintPos(32, 0);
+    str = String (currentTemp) + " C)"; 
+    u8g.print(str);
     u8g.undoScale();
 }
 
+void readSerial() {
+  enum State {
+
+  } State;
+}
+
 void loop(void) {
+  if (Serial.available()) {
+
+  }
+
+
   u8g.firstPage();
   do {
     drawCurrentCondition();
-    //draw();
   } while ( u8g.nextPage() );
 
-  if (++counter >= ConditionsCount) {
-    counter = 0;
-  }
-  // rebuild the picture after some delay
   delay(1000);
 }
 
