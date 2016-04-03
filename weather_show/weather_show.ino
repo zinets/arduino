@@ -9,6 +9,7 @@
 #define OLED_RESET 13
 
 #define DEGREE_SYMBOL char(176)
+#define MARKER_SEPARATOR ';'
 #define MARKER_TEMP 't'
 
 U8GLIB_SSD1306_128X64 u8g(OLED_CLK, OLED_MOSI, OLED_CS, OLED_DC, OLED_RESET);
@@ -25,6 +26,11 @@ typedef enum Conditions {
   PartlyCloudyNight,
   ConditionsCount,
 } Condition;
+
+typedef enum SerialState {
+    SerialStateReady,
+    SerialStateReadingTemperature,
+} SerialState;
 
 typedef struct IconData {
   u8 iconWidth;
@@ -45,7 +51,7 @@ IconData icons[ConditionsCount] = {
   {iconWidth: partly_cloudy_night_width, iconHeight: partly_cloudy_night_height, iconName: partly_cloudy_night_bits}, // PartlyCloudyNight,
 };
 
-u8 currentTemp;
+String currentTemp = "";
 u8 minTemp;
 u8 maxTemp; 
 Condition currentCondition;
@@ -53,9 +59,11 @@ int secondsCount = 0;
 
 typedef enum State {
   StateStarting,
+  StateCurrentTemperature,
+  StateCount,
 } State;
 
-State currentState = StateStarting;
+u8 currentState = StateStarting;
 
 void setup(void) {
   u8g.setFont(u8g_font_unifont);
@@ -65,10 +73,6 @@ void setup(void) {
   Serial.println("Inited");
 
   currentCondition = Rain;
-  currentTemp = 12;
-  minTemp = 9;
-  maxTemp = 20;
-
 }
 
 void drawStartLogo() {
@@ -85,8 +89,6 @@ void drawStartLogo() {
       u8g.drawDisc(startX + d * i, startY, r);
     }
   }
-  Serial.print("drawLogo ");
-  Serial.println(secondsCount);
 }
 
 void drawCurrentCondition() {
@@ -99,31 +101,81 @@ void drawCurrentCondition() {
     
     u8g.setScale2x2();
     u8g.setPrintPos(32, 0);
-    str = String (currentTemp) + " C)"; 
+    str = currentTemp + " C)"; 
     u8g.print(str);
     u8g.undoScale();
 }
 
-void readSerial() {
-  enum State {
+void readSerial() {  
+  String res = "";
+  SerialState serialState = SerialStateReady;
+  while (Serial.available()) {
+    u8 ch = Serial.read();
+    
+    Serial.print(">");
+    Serial.println(ch);
 
-  } State;
+    switch(serialState) {
+      case SerialStateReady: {
+        switch (ch) {
+          case MARKER_TEMP:
+            serialState = SerialStateReadingTemperature;
+            break;
+          default:
+            break;
+        }
+      } break;
+      case SerialStateReadingTemperature: {
+        if (ch == MARKER_SEPARATOR) {
+          currentTemp = res;
+          res = "";
+          serialState = SerialStateReady;
+        } else {
+          res = res + char(ch);          
+          Serial.println("=>" + res);
+        }
+      } break;
+      default:
+        break;
+    }
+  }  
 }
 
 void loop(void) {
+  readSerial();
+
   u8g.firstPage();
   do {
     switch (currentState) {
-    case StateStarting:
+      case StateStarting:
         drawStartLogo();
+        break;
+      case StateCurrentTemperature:
+        drawCurrentCondition();
         break;
       default:
         break;
     }
-    drawStartLogo();
   } while (u8g.nextPage());
 
   delay(1000);
   secondsCount++;
+
+  switch (currentState) {
+    case StateStarting: {
+      if (currentTemp.length() > 0) {
+        currentState++;
+      }
+    } break;
+    default:
+      if (secondsCount % 3 == 0) {
+        currentState++;
+      }
+      break;
+  }
+
+  if (currentState >= StateCount) {
+    currentState = StateCurrentTemperature;
+  }
 }
 
