@@ -49,6 +49,13 @@ u8 currentTemp;
 u8 minTemp;
 u8 maxTemp; 
 Condition currentCondition;
+int secondsCount = 0;
+
+typedef enum State {
+  StateStarting,
+} State;
+
+State currentState = StateStarting;
 
 void setup(void) {
   u8g.setFont(u8g_font_unifont);
@@ -62,6 +69,24 @@ void setup(void) {
   minTemp = 9;
   maxTemp = 20;
 
+}
+
+void drawStartLogo() {
+  u8g.drawXBMP((128 - WiFi_Logo_width) / 2, (64 - WiFi_Logo_height) / 2 - 3, WiFi_Logo_width, WiFi_Logo_height, WiFi_Logo_bits);
+  const u8 r = 4; // radius
+  const u8 d = 15; // space between dots
+  const u8 startX = 64 - d;
+  const u8 startY = 58;
+#define DOTS_COUNT 3
+  for (int i = 0; i < DOTS_COUNT; i++) {
+    if (secondsCount % DOTS_COUNT != i) {
+      u8g.drawCircle(startX + d * i, startY, r);
+    } else {
+      u8g.drawDisc(startX + d * i, startY, r);
+    }
+  }
+  Serial.print("drawLogo ");
+  Serial.println(secondsCount);
 }
 
 void drawCurrentCondition() {
@@ -86,16 +111,19 @@ void readSerial() {
 }
 
 void loop(void) {
-  if (Serial.available()) {
-
-  }
-
-
   u8g.firstPage();
   do {
-    drawCurrentCondition();
-  } while ( u8g.nextPage() );
+    switch (currentState) {
+    case StateStarting:
+        drawStartLogo();
+        break;
+      default:
+        break;
+    }
+    drawStartLogo();
+  } while (u8g.nextPage());
 
   delay(1000);
+  secondsCount++;
 }
 
