@@ -8,9 +8,11 @@
 #define OLED_CS    12
 #define OLED_RESET 13
 
-#define DEGREE_SYMBOL char(176)
-#define MARKER_SEPARATOR ';'
-#define MARKER_TEMP 't'
+#define DEGREE_SYMBOL       char(176)
+#define MARKER_SEPARATOR    ';'
+#define MARKER_TEMP         't'
+#define MARKER_MIN_TEMP     'm'
+#define MARKER_MAX_TEMP     'x'
 
 U8GLIB_SSD1306_128X64 u8g(OLED_CLK, OLED_MOSI, OLED_CS, OLED_DC, OLED_RESET);
 typedef enum Conditions { 
@@ -30,6 +32,8 @@ typedef enum Conditions {
 typedef enum SerialState {
     SerialStateReady,
     SerialStateReadingTemperature,
+    SerialStateReadingMinTemperature,
+    SerialStateReadingMaxTemperature,
 } SerialState;
 
 typedef struct IconData {
@@ -52,8 +56,8 @@ IconData icons[ConditionsCount] = {
 };
 
 String currentTemp = "";
-u8 minTemp;
-u8 maxTemp; 
+String minTemp = "";
+String maxTemp = ""; 
 Condition currentCondition;
 int secondsCount = 0;
 
@@ -95,7 +99,7 @@ void drawCurrentCondition() {
     IconData iconData = icons[currentCondition];
     u8g.drawXBMP(2, (64 - iconData.iconHeight) / 2, iconData.iconWidth, iconData.iconHeight, iconData.iconName);
 
-    String str = "(" + String(minTemp) + "/" + String(maxTemp) + " " + String (DEGREE_SYMBOL) + "C)";
+    String str = "(" + minTemp + "/" + maxTemp + String (DEGREE_SYMBOL) + "C)";
     u8g.setPrintPos(56, 40);
     u8g.print(str);
     
@@ -112,14 +116,17 @@ void readSerial() {
   while (Serial.available()) {
     u8 ch = Serial.read();
     
-    Serial.print(">");
-    Serial.println(ch);
-
     switch(serialState) {
       case SerialStateReady: {
         switch (ch) {
           case MARKER_TEMP:
             serialState = SerialStateReadingTemperature;
+            break;
+          case MARKER_MIN_TEMP:
+            serialState = SerialStateReadingMinTemperature;
+            break;
+          case MARKER_MAX_TEMP:
+            serialState = SerialStateReadingMaxTemperature;
             break;
           default:
             break;
@@ -132,7 +139,24 @@ void readSerial() {
           serialState = SerialStateReady;
         } else {
           res = res + char(ch);          
-          Serial.println("=>" + res);
+        }
+      } break;
+      case SerialStateReadingMaxTemperature: {
+        if (ch == MARKER_SEPARATOR) {
+          maxTemp = res;
+          res = "";
+          serialState = SerialStateReady;
+        } else {
+          res = res + char(ch);          
+        }
+      } break;
+      case SerialStateReadingMinTemperature: {
+        if (ch == MARKER_SEPARATOR) {
+          minTemp = res;
+          res = "";
+          serialState = SerialStateReady;
+        } else {
+          res = res + char(ch);          
         }
       } break;
       default:
