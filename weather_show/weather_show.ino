@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 #include "U8glib.h"
 
 #include "resources.h"
