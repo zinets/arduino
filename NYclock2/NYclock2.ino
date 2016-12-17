@@ -23,8 +23,8 @@ Adafruit_BMP085_Unified bmp;
 float pressure;
 float temperature;
 
-#undef DEBUG
-#undef DEBUG_OUTPUT
+#define DEBUG
+//#define DEBUG_OUTPUT
 #define USE_WIFI
 
 #define SSID "hamster-wifi2"
