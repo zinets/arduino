@@ -2,10 +2,10 @@
 
 
 
-#define NUM_LEDS     50
+#define NUM_LEDS     69
 #define LED_TYPE WS2811
 #define COLOR_ORDER GRB
-#define DATA_PIN      2  
+#define DATA_PIN      2
 
 #undef CONTROLLER
 #ifdef CONTROLLER
@@ -14,9 +14,9 @@
 
 CRGB leds[NUM_LEDS];
 
-#define TWINKLE_SPEED 3
-#define TWINKLE_DENSITY 5
-#define SECONDS_PER_PALETTE  45
+#define TWINKLE_SPEED         3
+#define TWINKLE_DENSITY       5
+#define SECONDS_PER_PALETTE   60
 
 CRGB gBackgroundColor = CRGB::Black; //CRGB(0,0,6);
 CRGBPalette16 gCurrentPalette;
@@ -197,22 +197,18 @@ const TProgmemRGBPalette16 White_p FL_PROGMEM = {
 // Add or remove palette names from this list to control which color
 // palettes are used, and in what order.
 const TProgmemRGBPalette16* ActivePaletteList[] = {
-  &RainbowStripeColors_p,
-  &RainbowStripeColors_p,
-  //  &LavaColors_p,
-  &RedGreenWhite_p,
-  &RainbowStripeColors_p,
-  &RainbowStripeColors_p,
+  // &RainbowStripeColors_p,
+  // &RedGreenWhite_p,
+  // &RainbowStripeColors_p,
   &BlueWhite_p,
-  &RainbowStripeColors_p,
-  &RainbowStripeColors_p,
-  //  &RainbowColors_p,
-  //  &FairyLight_p,
-  //  &RedWhite_p,
-  &PartyColors_p,
-  &RainbowStripeColors_p,
-  &RainbowStripeColors_p,
-  //  &Snow_p
+  // &RainbowStripeColors_p,
+  &FairyLight_p,
+  // &RainbowStripeColors_p,
+  // &RedWhite_p,
+  // &RainbowStripeColors_p,
+  // &PartyColors_p,
+  // &RainbowStripeColors_p,
+  // &Snow_p,
 };
 
 
