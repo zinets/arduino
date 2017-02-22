@@ -78,10 +78,17 @@ void setup() {
   attachInterrupt(0, ping, RISING);
 
   pinMode(BUTTON_PIN, INPUT);
+
+  if (digitalRead(BUTTON_PIN)) {
+    timeStruct.timerStarted = false;
+    lcd.setCursor(0, 0);
+    lcd.print("Cleared!");
+    while (digitalRead(BUTTON_PIN));
+  } else {
+    EEPROM.get(EEPROM_ADDR, timeStruct);
+  }
   bouncer.attach(BUTTON_PIN);
   bouncer.interval(5);
-
-  EEPROM.get(EEPROM_ADDR, timeStruct);
 }
 
 void loop() {
