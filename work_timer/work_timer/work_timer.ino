@@ -52,11 +52,11 @@ enum MainState {
 };
 volatile MainState mainState = stateInactive;
 
-struct TimeObject {
+typedef struct TimeObject {
   bool timerStarted;
   DateTime arriveTime;
   DateTime endTime;
-}
+} TimeObject;
 
 struct TimeObject timeStruct;
 
@@ -80,8 +80,8 @@ void setup() {
   pinMode(BUTTON_PIN, INPUT);
   bouncer.attach(BUTTON_PIN);
   bouncer.interval(5);
-  
-  EEPROM.get(EEPROM_ADDR, timeStruct);  
+
+  EEPROM.get(EEPROM_ADDR, timeStruct);
 }
 
 void loop() {
@@ -100,7 +100,7 @@ void loop() {
       }
       lcd.setCursor(0, 1);
       lcd.print(buf);
-      if (timerStruct.timerStarted) {
+      if (timeStruct.timerStarted) {
         TimeSpan remain = timeStruct.endTime - now;
         if (remain.totalseconds() > 1) {
           // print arrive time
@@ -113,11 +113,11 @@ void loop() {
           lcd.print(buf);
         } else {
           timeStruct.timerStarted = false;
-          
+
           lcd.setCursor(9, 0);
           lcd.print("       ");
           lcd.setCursor(9, 1);
-          lcd.print("       ");         
+          lcd.print("       ");
           EEPROM.put(EEPROM_ADDR, timeStruct);
         }
       }
@@ -125,7 +125,7 @@ void loop() {
     } break;
     case stateInactive:
     default:
-      if (!timerStarted && bouncer.update()) {
+      if (!timeStruct.timerStarted && bouncer.update()) {
         if (bouncer.fell()) {
           timeStruct.timerStarted = true;
           timeStruct.arriveTime = rtc.now();
