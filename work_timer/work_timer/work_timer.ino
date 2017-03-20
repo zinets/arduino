@@ -141,7 +141,11 @@ void loop() {
           // print remain time
           lcd.setCursor(9, 1);
           if (displayState == stateRemainTime) {
-            sprintf(buf, "%c %02d:%02d", EXIT_SYMBOL, remain.hours(), remain.minutes());
+            if (sec % 2 == 0) {
+              sprintf(buf, "%c %02d %02d", EXIT_SYMBOL, remain.hours(), remain.minutes());
+            } else {
+              sprintf(buf, "%c %02d:%02d", EXIT_SYMBOL, remain.hours(), remain.minutes());
+            }
           } else {
             sprintf(buf, "%c %02d:%02d", CLOCK_SYMBOL, timeStruct.endTime.hour(), timeStruct.endTime.minute());
           }
@@ -172,19 +176,17 @@ void loop() {
       break;
   }
 
-  if (Serial.available() > 0) {
-    if (Serial.read() == 't') { // marker for correction time
-      Serial.println("reading..");
-
-      int nowUnixTime = Serial.parseInt();
-
-      Serial.println("readed: " + String(nowUnixTime));
-      DateTime nowDt = DateTime(nowUnixTime);
-      Serial.println(String(nowDt.hour()) + ":" + String(nowDt.minute()));
-    }
-    // Serial.write(Serial.read());
-    // Serial.println(">");
-  }
+  // if (Serial.available() > 0) {
+  //   if (Serial.read() == 't') { // marker for correction time
+  //     Serial.println("reading..");
+  //
+  //     int nowUnixTime = Serial.parseInt();
+  //
+  //     Serial.println("readed: " + String(nowUnixTime));
+  //     DateTime nowDt = DateTime(nowUnixTime);
+  //     Serial.println(String(nowDt.hour()) + ":" + String(nowDt.minute()));
+  //   }
+  // }
 }
 
 void ping() {
