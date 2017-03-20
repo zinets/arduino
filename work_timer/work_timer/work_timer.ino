@@ -78,7 +78,8 @@ typedef struct TimeObject {
 struct TimeObject timeStruct;
 
 void setup() {
-  Serial.begin(57600);
+  Serial.begin(115200);
+
   Wire.begin();
   rtc.begin();
   if (!rtc.isrunning()) {
@@ -169,6 +170,20 @@ void loop() {
         }
       }
       break;
+  }
+
+  if (Serial.available() > 0) {
+    if (Serial.read() == 't') { // marker for correction time
+      Serial.println("reading..");
+
+      int nowUnixTime = Serial.parseInt();
+
+      Serial.println("readed: " + String(nowUnixTime));
+      DateTime nowDt = DateTime(nowUnixTime);
+      Serial.println(String(nowDt.hour()) + ":" + String(nowDt.minute()));
+    }
+    // Serial.write(Serial.read());
+    // Serial.println(">");
   }
 }
 
