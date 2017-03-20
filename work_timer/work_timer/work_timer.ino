@@ -46,11 +46,28 @@ byte exit_symbol[8] = {
   B00000,
 };
 
+byte clock_symbol[8] = {
+  B01110,
+  B10101,
+  B10101,
+  B10111,
+  B10001,
+  B10001,
+  B01110,
+  B00000,
+};
 enum MainState {
     stateTimeUpdated,
     stateInactive,
 };
 volatile MainState mainState = stateInactive;
+
+enum DisplayState {
+  stateRemainTime, // оставшееся время в часах
+  stateFinishTime, // время ухода в ЧЧ:ММ
+};
+volatile DisplayState displayState = stateRemainTime;
+int displayStateCounter = 0;
 
 typedef struct TimeObject {
   bool timerStarted;
@@ -74,6 +91,12 @@ void setup() {
   lcd.createChar(0, divider);
   lcd.createChar(1, arrived);
   lcd.createChar(2, exit_symbol);
+  lcd.createChar(3, clock_symbol);
+
+  #define DIVIDER_SYMBOL  byte(0)
+  #define ARRIVED_SYMBOL  byte(1)
+  #define EXIT_SYMBOL     byte(2)
+  #define CLOCK_SYMBOL    byte(3)
 
   attachInterrupt(0, ping, RISING);
 
@@ -112,11 +135,16 @@ void loop() {
         if (remain.totalseconds() > 1) {
           // print arrive time
           lcd.setCursor(9, 0);
-          sprintf(buf, "%c %02d:%02d", byte(1), timeStruct.arriveTime.hour(), timeStruct.arriveTime.minute());
+          sprintf(buf, "%c %02d:%02d", ARRIVED_SYMBOL, timeStruct.arriveTime.hour(), timeStruct.arriveTime.minute());
           lcd.print(buf);
           // print remain time
           lcd.setCursor(9, 1);
-          sprintf(buf, "%c %02d:%02d", byte(2), remain.hours(), remain.minutes());
+          if (displayState == stateRemainTime) {
+            sprintf(buf, "%c %02d:%02d", EXIT_SYMBOL, remain.hours(), remain.minutes());
+          } else {
+            sprintf(buf, "%c %02d:%02d", CLOCK_SYMBOL, timeStruct.endTime.hour(), timeStruct.endTime.minute());
+          }
+
           lcd.print(buf);
         } else {
           timeStruct.timerStarted = false;
@@ -146,4 +174,12 @@ void loop() {
 
 void ping() {
   mainState = stateTimeUpdated;
+  // смена варианта отображения кажд. 3 тика
+  if (displayStateCounter++ % 5 == 0) {
+    if (displayState == stateRemainTime) {
+      displayState = stateFinishTime;
+    } else {
+      displayState = stateRemainTime;
+    }
+  }
 }
