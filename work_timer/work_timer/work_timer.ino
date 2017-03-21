@@ -56,6 +56,18 @@ byte clock_symbol[8] = {
   B01110,
   B00000,
 };
+
+byte dinner_symbol[8] = {
+  B10100,
+  B01010,
+  B00101,
+  B00000,
+  B00111,
+  B01111,
+  B10111,
+  B01111,
+};
+
 enum MainState {
     stateTimeUpdated,
     stateInactive,
@@ -93,11 +105,13 @@ void setup() {
   lcd.createChar(1, arrived);
   lcd.createChar(2, exit_symbol);
   lcd.createChar(3, clock_symbol);
+  lcd.createChar(4, dinner_symbol);
 
   #define DIVIDER_SYMBOL  byte(0)
   #define ARRIVED_SYMBOL  byte(1)
   #define EXIT_SYMBOL     byte(2)
   #define CLOCK_SYMBOL    byte(3)
+  #define DINNER_SYMBOL   byte(4)
 
   attachInterrupt(0, ping, RISING);
 
@@ -124,11 +138,11 @@ void loop() {
       lcd.print(String(now.day()) + "." + String(now.month()) + "." + String(now.year() - 2000) + "    ");
       // print current time
       int sec = now.second();
-      if (sec % 2 == 0) {
-        sprintf(buf, "%02d:%02d", now.hour(), now.minute());
-      } else {
-        sprintf(buf, "%02d %02d", now.hour(), now.minute());
-      }
+      bool dinnerTime = now.hour() == 12 && now.minute() > 35 && now.minute() < 59;
+      byte dinnerSym = dinnerTime ? DINNER_SYMBOL : ' ';
+      byte dividerSym = sec % 2 == 0 ? ':' : ' ';
+      sprintf(buf, "%02d%c%02d %c", now.hour(), dividerSym, now.minute(), dinnerSym);
+
       lcd.setCursor(0, 1);
       lcd.print(buf);
       if (timeStruct.timerStarted) {
