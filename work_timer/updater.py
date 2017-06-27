@@ -3,7 +3,7 @@ import serial
 
 def unix_time_millis(dt):
     epoch = datetime.utcfromtimestamp(0)
-    return int((dt - epoch).total_seconds()) #+ 60 * 60
+    return int((dt - epoch).total_seconds()) + 60 * 60
 
 # print(unix_time_millis(datetime.now()))
 
@@ -13,13 +13,17 @@ print(ser.name)
 # ser.write('t')
 ut = unix_time_millis(datetime.now())
 
-toSend = 't' + str(ut)
-print(toSend)
-ser.write(toSend)
+toSend = "t" + str(ut) + "\r"
+print("sending " + toSend)
+ser.write(toSend.encode())
 
-if (ser.inWaiting() > 0):
-    myData = ser.readline()
-    print myData
+print ("waiting for response..")
+time.sleep(3)
+response = ""
+while (ser.inWaiting() > 0):
+	response += ser.read()
+
+print response
 
 ser.close()
 
