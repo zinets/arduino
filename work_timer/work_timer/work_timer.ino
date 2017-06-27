@@ -134,8 +134,13 @@ void loop() {
     case stateTimeUpdated: {
       DateTime now = rtc.now();
       // print date
+
+      // lcd.print(String(now.day()) + "." + String(now.month()) + "." + String(now.year() - 2000) + "    ");
+
+      sprintf(buf, "%02d.%02d", now.day(), now.month());//, now.year() - 2000);
       lcd.setCursor(0, 0);
-      lcd.print(String(now.day()) + "." + String(now.month()) + "." + String(now.year() - 2000) + "    ");
+      lcd.print(buf);
+
       // print current time
       int sec = now.second();
       bool dinnerTime = now.hour() == 12 && now.minute() > 35 && now.minute() < 59;
@@ -190,17 +195,16 @@ void loop() {
       break;
   }
 
-  // if (Serial.available() > 0) {
-  //   if (Serial.read() == 't') { // marker for correction time
-  //     Serial.println("reading..");
-  //
-  //     int nowUnixTime = Serial.parseInt();
-  //
-  //     Serial.println("readed: " + String(nowUnixTime));
-  //     DateTime nowDt = DateTime(nowUnixTime);
-  //     Serial.println(String(nowDt.hour()) + ":" + String(nowDt.minute()));
-  //   }
-  // }
+  if (Serial.available() > 0) {
+    if (Serial.read() == 't') { // marker for correction time
+      // Serial.println("reading..");
+      String nowUnixTime = Serial.readString();
+      Serial.println("readed: " + nowUnixTime);
+      DateTime nowDt = DateTime(nowUnixTime.toInt());
+      rtc.adjust(nowDt);
+      Serial.println(String(nowDt.hour()) + ":" + String(nowDt.minute()));      
+    }
+  }
 }
 
 void ping() {
