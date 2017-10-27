@@ -4,7 +4,60 @@
 #include <Bounce2.h>
 #include <EEPROM.h>
 
+#include "FastLED.h"
 #include "RTClib.h"
+
+#define NUM_LEDS 1
+#define DATA_PIN 4
+CRGB leds[NUM_LEDS];
+
+enum LedState {
+  ledStateReady,
+  ledStateWork,
+  ledStateDinner,
+};
+volatile LedState ledState = ledStateReady;
+
+const TProgmemRGBPalette16 WorkColors_p FL_PROGMEM = {
+    CRGB::Orange,
+    CRGB::Maroon,
+
+    CRGB::DarkRed,
+    CRGB::Maroon,
+    CRGB::DarkRed,
+
+    CRGB::DarkRed,
+    CRGB::DarkRed,
+    CRGB::Red,
+    CRGB::Orange,
+
+    CRGB::White,
+    CRGB::Orange,
+    CRGB::Red,
+    CRGB::DarkRed
+};
+
+const TProgmemRGBPalette16 ReadyColors_p FL_PROGMEM = {
+    CRGB::DarkGreen,
+    CRGB::DarkGreen,
+    CRGB::DarkOliveGreen,
+    CRGB::DarkGreen,
+
+    CRGB::Green,
+    CRGB::ForestGreen,
+    CRGB::OliveDrab,
+    CRGB::Green,
+
+    CRGB::SeaGreen,
+    CRGB::MediumAquamarine,
+    CRGB::LimeGreen,
+    CRGB::YellowGreen,
+
+    CRGB::LightGreen,
+    CRGB::LawnGreen,
+    CRGB::MediumAquamarine,
+    CRGB::ForestGreen
+};
 
 LiquidCrystal lcd(12, 11, 9, 8, 7, 6);
 RTC_DS1307 rtc;
@@ -100,6 +153,9 @@ void setup() {
   }
   rtc.writeSqwPinMode(SquareWave1HZ);
 
+  // led
+  FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
+
   lcd.begin(16, 2);
   lcd.createChar(0, divider);
   lcd.createChar(1, arrived);
@@ -143,9 +199,10 @@ void loop() {
 
       // print current time
       int sec = now.second();
+      bool dotsOn = sec % 2 == 0;
       bool dinnerTime = now.hour() == 12 && now.minute() > 35 && now.minute() < 59;
       byte dinnerSym = dinnerTime ? DINNER_SYMBOL : ' ';
-      byte dividerSym = sec % 2 == 0 ? ':' : ' ';
+      byte dividerSym = dotsOn ? ':' : ' ';      
       sprintf(buf, "%02d%c%02d %c", now.hour(), dividerSym, now.minute(), dinnerSym);
 
       lcd.setCursor(0, 1);
@@ -160,7 +217,7 @@ void loop() {
           // print remain time
           lcd.setCursor(9, 1);
           if (displayState == stateRemainTime) {
-            if (sec % 2 == 0) {
+            if (dotsOn) {
               sprintf(buf, "%c %02d %02d", EXIT_SYMBOL, remain.hours(), remain.minutes());
             } else {
               sprintf(buf, "%c %02d:%02d", EXIT_SYMBOL, remain.hours(), remain.minutes());
@@ -178,8 +235,16 @@ void loop() {
           lcd.setCursor(9, 1);
           lcd.print("       ");
           EEPROM.put(EEPROM_ADDR, timeStruct);
-        }
+        }        
       }
+      if (dinnerTime) {
+        ledState = ledStateDinner;
+      } else if (timeStruct.timerStarted) {
+        ledState = ledStateWork;
+      } else {
+        ledStateReady;
+      }
+      
       mainState = stateInactive;
     } break;
     case stateInactive:
@@ -205,6 +270,7 @@ void loop() {
       Serial.println(String(nowDt.hour()) + ":" + String(nowDt.minute()));      
     }
   }
+  updateColor();
 }
 
 void ping() {
@@ -217,4 +283,25 @@ void ping() {
       displayState = stateRemainTime;
     }
   }
+}
+
+void updateColor() {
+  static uint8_t index = 0;
+  
+  switch (ledState) {
+    case ledStateWork: {
+      CRGB color = ColorFromPalette(WorkColors_p, index);
+      leds[0] = color;
+    } break;
+    case ledStateReady:
+    default: {
+      CRGB color = ColorFromPalette(ReadyColors_p, index);
+      leds[0] = color;
+    } break;
+  }
+  
+  EVERY_N_MILLISECONDS(40) {    
+    index++;
+    FastLED.show();
+  }  
 }
