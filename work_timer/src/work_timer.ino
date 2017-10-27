@@ -193,7 +193,7 @@ void loop() {
 
       // lcd.print(String(now.day()) + "." + String(now.month()) + "." + String(now.year() - 2000) + "    ");
 
-      sprintf(buf, "%02d.%02d", now.day(), now.month());//, now.year() - 2000);
+      sprintf(buf, "%02d.%02d   ", now.day(), now.month());//, now.year() - 2000); to clear ending "Clear-ed!"
       lcd.setCursor(0, 0);
       lcd.print(buf);
 
