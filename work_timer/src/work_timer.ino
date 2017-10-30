@@ -3,6 +3,8 @@
 #include <Wire.h>
 #include <Bounce2.h>
 #include <EEPROM.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
 
 #include "FastLED.h"
 #include "RTClib.h"
@@ -121,6 +123,18 @@ byte dinner_symbol[8] = {
   B01111,
 };
 
+byte temp_symbol[8] = {
+  B00010,
+  B00101,
+  B00010,
+  B01000,
+  B11100,
+  B01000,
+  B01000,
+  B00110,
+};
+
+
 enum MainState {
     stateTimeUpdated,
     stateInactive,
@@ -142,8 +156,37 @@ typedef struct TimeObject {
 
 struct TimeObject timeStruct;
 
+#define ONE_WIRE_BUS 5
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature sensors(&oneWire);
+DeviceAddress insideThermometer;
+bool oneWireInited = false;
+double currentTemp = 0;
+
 void setup() {
   Serial.begin(115200);
+
+  Serial.print("Locating devices...");
+  sensors.begin();
+  Serial.print("Found ");
+  Serial.print(sensors.getDeviceCount(), DEC);
+  Serial.println(" devices.");
+
+  Serial.print("Parasite power is: "); 
+  if (sensors.isParasitePowerMode()) 
+    Serial.println("ON");
+  else 
+    Serial.println("OFF");
+
+  if (!sensors.getAddress(insideThermometer, 0)) {
+    Serial.println("Unable to find address for Device 0"); 
+  } else {
+    oneWireInited = true;
+    Serial.print("Device 0 Address: ");
+    printAddress(insideThermometer);
+    Serial.println();
+  }  
+  currentTemp = updateTemperature();
 
   Wire.begin();
   rtc.begin();
@@ -162,12 +205,14 @@ void setup() {
   lcd.createChar(2, exit_symbol);
   lcd.createChar(3, clock_symbol);
   lcd.createChar(4, dinner_symbol);
+  lcd.createChar(5, temp_symbol);
 
   #define DIVIDER_SYMBOL  byte(0)
   #define ARRIVED_SYMBOL  byte(1)
   #define EXIT_SYMBOL     byte(2)
   #define CLOCK_SYMBOL    byte(3)
   #define DINNER_SYMBOL   byte(4)
+  #define TEMP_C_SYMBOL   byte(5)
 
   attachInterrupt(0, ping, RISING);
 
@@ -190,15 +235,19 @@ void loop() {
     case stateTimeUpdated: {
       DateTime now = rtc.now();
       // print date
-
-      // lcd.print(String(now.day()) + "." + String(now.month()) + "." + String(now.year() - 2000) + "    ");
-
-      sprintf(buf, "%02d.%02d   ", now.day(), now.month());//, now.year() - 2000); to clear ending "Clear-ed!"
+      int sec = now.second();
+      
+      if (oneWireInited && (sec % 6 == 0 || sec % 6 == 1)) {
+        char str_temp[6];        
+        dtostrf(currentTemp, 4, 2, str_temp);
+        sprintf(buf, "%s %c    ", str_temp, TEMP_C_SYMBOL); 
+      } else {
+        sprintf(buf, "%02d.%02d   ", now.day(), now.month());//, now.year() - 2000); to clear ending "Clear-ed!"
+      }
       lcd.setCursor(0, 0);
       lcd.print(buf);
 
       // print current time
-      int sec = now.second();
       bool dotsOn = sec % 2 == 0;
       bool dinnerTime = now.hour() == 12 && now.minute() > 35 && now.minute() < 59;
       byte dinnerSym = dinnerTime ? DINNER_SYMBOL : ' ';
@@ -242,7 +291,11 @@ void loop() {
       } else if (timeStruct.timerStarted) {
         ledState = ledStateWork;
       } else {
-        ledStateReady;
+        ledState = ledStateReady;
+      }
+
+      if (now.second() == 0 && (now.minute() % 5 == 0)) {
+        currentTemp = updateTemperature();
       }
       
       mainState = stateInactive;
@@ -304,4 +357,25 @@ void updateColor() {
     index++;
     FastLED.show();
   }  
+}
+
+void printAddress(DeviceAddress deviceAddress) {
+  for (uint8_t i = 0; i < 8; i++) {
+    if (deviceAddress[i] < 16) Serial.print("0");
+    Serial.print(deviceAddress[i], HEX);
+  }
+}
+
+float updateTemperature() {
+  float tempC = 0;
+  if (oneWireInited) {
+    // Serial.print("Requesting temperatures...");
+    sensors.requestTemperatures(); // Send the command to get temperatures
+    // Serial.println("DONE");
+
+    tempC = sensors.getTempC(insideThermometer);
+    Serial.print("Temp C: ");
+    Serial.print(tempC);
+  }
+  return tempC;
 }
