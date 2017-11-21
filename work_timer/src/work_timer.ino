@@ -144,6 +144,7 @@ volatile MainState mainState = stateInactive;
 enum DisplayState {
   stateRemainTime, // оставшееся время в часах
   stateFinishTime, // время ухода в ЧЧ:ММ
+  stateShowTemp,   // покажем температуру
 };
 volatile DisplayState displayState = stateRemainTime;
 int displayStateCounter = 0;
@@ -236,14 +237,7 @@ void loop() {
       DateTime now = rtc.now();
       // print date
       int sec = now.second();
-      
-      if (oneWireInited && (sec % 6 == 0 || sec % 6 == 1)) {
-        char str_temp[6];        
-        dtostrf(currentTemp, 4, 2, str_temp);
-        sprintf(buf, "%s %c    ", str_temp, TEMP_C_SYMBOL); 
-      } else {
-        sprintf(buf, "%02d.%02d   ", now.day(), now.month());//, now.year() - 2000); to clear ending "Clear-ed!"
-      }
+      sprintf(buf, "%02d.%02d   ", now.day(), now.month());//, now.year() - 2000); to clear ending "Clear-ed!"
       lcd.setCursor(0, 0);
       lcd.print(buf);
 
@@ -265,16 +259,21 @@ void loop() {
           lcd.print(buf);
           // print remain time
           lcd.setCursor(9, 1);
-          if (displayState == stateRemainTime) {
-            if (dotsOn) {
-              sprintf(buf, "%c %02d %02d", EXIT_SYMBOL, remain.hours(), remain.minutes());
-            } else {
-              sprintf(buf, "%c %02d:%02d", EXIT_SYMBOL, remain.hours(), remain.minutes());
-            }
-          } else {
-            sprintf(buf, "%c %02d:%02d", CLOCK_SYMBOL, timeStruct.endTime.hour(), timeStruct.endTime.minute());
+          switch (displayState) {
+            case stateRemainTime: 
+              if (dotsOn) {
+                sprintf(buf, "%c %02d %02d", EXIT_SYMBOL, remain.hours(), remain.minutes());
+              } else {
+                sprintf(buf, "%c %02d:%02d", EXIT_SYMBOL, remain.hours(), remain.minutes());
+              }
+              break;
+            case stateFinishTime:
+              sprintf(buf, "%c %02d:%02d", CLOCK_SYMBOL, timeStruct.endTime.hour(), timeStruct.endTime.minute());
+              break;
+            case stateShowTemp:
+              sprintf(buf, "%c %02d C ", TEMP_C_SYMBOL, (int)currentTemp);
+              break;
           }
-
           lcd.print(buf);
         } else {
           timeStruct.timerStarted = false;
@@ -328,13 +327,19 @@ void loop() {
 
 void ping() {
   mainState = stateTimeUpdated;
-  // смена варианта отображения кажд. 3 тика
+    
   if (displayStateCounter++ % 5 == 0) {
-    if (displayState == stateRemainTime) {
-      displayState = stateFinishTime;
-    } else {
-      displayState = stateRemainTime;
-    }
+    switch (displayState) {
+      case stateRemainTime:
+        displayState = stateFinishTime;
+        break;
+      case stateFinishTime:
+        displayState = stateShowTemp;
+        break;
+      case stateShowTemp:
+        displayState = stateRemainTime;
+        break;
+    }    
   }
 }
 
@@ -374,8 +379,8 @@ float updateTemperature() {
     // Serial.println("DONE");
 
     tempC = sensors.getTempC(insideThermometer);
-    Serial.print("Temp C: ");
-    Serial.print(tempC);
+    // Serial.print("Temp C: ");
+    // Serial.print(tempC);
   }
   return tempC;
 }
