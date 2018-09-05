@@ -10,12 +10,16 @@ SoftwareSerial ss(RXPin, TXPin);
 GpsSensor *gpsSensor;
 
 void setup() {
-    Serial.begin(115200);
+    Serial.begin(9600);
     ss.begin(GPSBaud);
 
     gpsSensor = new GpsSensor(&ss);
 }
 
 void loop() {
-    // put your main code here, to run repeatedly:
+    Serial.println("read..");
+    
+    gpsSensor->currentSpeed();
+
+    delay(1000);
 }
