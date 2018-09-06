@@ -173,20 +173,20 @@ void setup() {
   Serial.print(sensors.getDeviceCount(), DEC);
   Serial.println(" devices.");
 
-  Serial.print("Parasite power is: "); 
-  if (sensors.isParasitePowerMode()) 
+  Serial.print("Parasite power is: ");
+  if (sensors.isParasitePowerMode())
     Serial.println("ON");
-  else 
+  else
     Serial.println("OFF");
 
   if (!sensors.getAddress(insideThermometer, 0)) {
-    Serial.println("Unable to find address for Device 0"); 
+    Serial.println("Unable to find address for Device 0");
   } else {
     oneWireInited = true;
     Serial.print("Device 0 Address: ");
     printAddress(insideThermometer);
     Serial.println();
-  }  
+  }
   currentTemp = updateTemperature();
 
   Wire.begin();
@@ -245,7 +245,7 @@ void loop() {
       bool dotsOn = sec % 2 == 0;
       bool dinnerTime = now.hour() == 12 && now.minute() > 35 && now.minute() < 59;
       byte dinnerSym = dinnerTime ? DINNER_SYMBOL : ' ';
-      byte dividerSym = dotsOn ? ':' : ' ';      
+      byte dividerSym = dotsOn ? ':' : ' ';
       sprintf(buf, "%02d%c%02d %c", now.hour(), dividerSym, now.minute(), dinnerSym);
 
       lcd.setCursor(0, 1);
@@ -260,7 +260,7 @@ void loop() {
           // print remain time
           lcd.setCursor(9, 1);
           switch (displayState) {
-            case stateRemainTime: 
+            case stateRemainTime:
               if (dotsOn) {
                 sprintf(buf, "%c %02d %02d", EXIT_SYMBOL, remain.hours(), remain.minutes());
               } else {
@@ -283,7 +283,7 @@ void loop() {
           lcd.setCursor(9, 1);
           lcd.print("       ");
           EEPROM.put(EEPROM_ADDR, timeStruct);
-        }        
+        }
       }
       if (dinnerTime) {
         ledState = ledStateDinner;
@@ -296,17 +296,24 @@ void loop() {
       if (now.second() == 0 && (now.minute() % 5 == 0)) {
         currentTemp = updateTemperature();
       }
-      
+
       mainState = stateInactive;
     } break;
     case stateInactive:
     default:
+      // таймер не запущен и нажата кнопка - запуск таймера
       if (!timeStruct.timerStarted && bouncer.update()) {
         if (bouncer.fell()) {
           timeStruct.timerStarted = true;
           timeStruct.arriveTime = rtc.now();
           timeStruct.endTime = timeStruct.arriveTime + TimeSpan(9 * 60 * 60 + 59);
           EEPROM.put(EEPROM_ADDR, timeStruct);
+        }
+      }
+      // таймер запущен и нажата кнопка - посылка в порт сигнала
+      else if (timeStruct.timerStarted && bouncer.update()) {
+        if (bouncer.fell()) {
+          Serial.println("$screen.On");
         }
       }
       break;
@@ -319,7 +326,7 @@ void loop() {
       Serial.println("readed: " + nowUnixTime);
       DateTime nowDt = DateTime(nowUnixTime.toInt());
       rtc.adjust(nowDt);
-      Serial.println(String(nowDt.hour()) + ":" + String(nowDt.minute()));      
+      Serial.println(String(nowDt.hour()) + ":" + String(nowDt.minute()));
     }
   }
   updateColor();
@@ -327,7 +334,7 @@ void loop() {
 
 void ping() {
   mainState = stateTimeUpdated;
-    
+
   if (displayStateCounter++ % 5 == 0) {
     switch (displayState) {
       case stateRemainTime:
@@ -339,13 +346,13 @@ void ping() {
       case stateShowTemp:
         displayState = stateRemainTime;
         break;
-    }    
+    }
   }
 }
 
 void updateColor() {
   static uint8_t index = 0;
-  
+
   switch (ledState) {
     case ledStateWork: {
       CRGB color = ColorFromPalette(WorkColors_p, index);
@@ -357,11 +364,11 @@ void updateColor() {
       leds[0] = color;
     } break;
   }
-  
-  EVERY_N_MILLISECONDS(40) {    
+
+  EVERY_N_MILLISECONDS(40) {
     index++;
     FastLED.show();
-  }  
+  }
 }
 
 void printAddress(DeviceAddress deviceAddress) {
