@@ -10,65 +10,26 @@ const char *gpsStream =
 
 #undef TEST
 
-GpsSensor::GpsSensor(SoftwareSerial *serialPort) {
-  gps = TinyGPSPlus();
-  ss = serialPort;
+GpsSensor::GpsSensor(int rxPin, int txPin, int gpsSpeed) {
+  gps = new TinyGPSPlus();
+  ss = new SoftwareSerial(rxPin, txPin);
+  ss->begin(gpsSpeed);
 }
 
-float GpsSensor::currentSpeed() {
-  Serial.print ("reading..");
-#ifdef TEST
-#warning "Hardcoded values used!"
+void GpsSensor::updateGpsData() {
 
-  while (*gpsStream) {
-    gps.encode(*gpsStream++);
+  while (ss->available()) {
+    gps->encode(ss->read());
   }
 
-#else
+  currentGpsData.isValid = gps->location.age() < 2000;
+  currentGpsData.numberOfSats = gps->satellites.value();
 
-  while (ss->available() > 0)
-    gps.encode(ss->read());
-
-#endif
-
-  if (gps.location.isUpdated()) {
-    Serial.print(F("LOCATION   Fix Age="));
-    Serial.print(gps.location.age());
-    Serial.print(F("ms Raw Lat="));
-    Serial.print(gps.location.rawLat().negative ? "-" : "+");
-    Serial.print(gps.location.rawLat().deg);
-    Serial.print("[+");
-    Serial.print(gps.location.rawLat().billionths);
-    Serial.print(F(" billionths],  Raw Long="));
-    Serial.print(gps.location.rawLng().negative ? "-" : "+");
-    Serial.print(gps.location.rawLng().deg);
-    Serial.print("[+");
-    Serial.print(gps.location.rawLng().billionths);
-    Serial.print(F(" billionths],  Lat="));
-    Serial.print(gps.location.lat(), 6);
-    Serial.print(F(" Long="));
-    Serial.println(gps.location.lng(), 6);
+  if (gps->location.isUpdated()) {
+    currentGpsData.lat = gps->location.lat();
+    currentGpsData.lon = gps->location.lng();
   }
-
-  if (gps.speed.isUpdated()) {
-    Serial.print(F("SPEED      Fix Age="));
-    Serial.print(gps.speed.age());
-    Serial.print(F("ms Raw="));
-    Serial.print(gps.speed.value());
-    Serial.print(F(" Knots="));
-    Serial.print(gps.speed.knots());
-    Serial.print(F(" MPH="));
-    Serial.print(gps.speed.mph());
-    Serial.print(F(" m/s="));
-    Serial.print(gps.speed.mps());
-    Serial.print(F(" km/h="));
-    Serial.println(gps.speed.kmph());
-  }
-
-  if (gps.speed.isUpdated() && gps.speed.isValid()) {
-    return gps.speed.kmph();
-  } else {
-    return 45;
-  }
-
+  if (gps->speed.isUpdated()) {
+    currentGpsData.speed = gps->speed.kmph();
+  }  
 }
