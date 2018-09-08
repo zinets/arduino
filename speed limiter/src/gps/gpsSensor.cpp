@@ -8,7 +8,7 @@ const char *gpsStream =
   "$GPRMC,045251.000,A,3014.4275,N,09749.0626,W,0.51,217.94,030913,,,A*7D\r\n"
   "$GPGGA,045252.000,3014.4273,N,09749.0628,W,1,09,1.3,206.9,M,-22.5,M,,0000*6F\r\n";
 
-#define TEST
+#undef TEST
 
 GpsSensor::GpsSensor(SoftwareSerial *serialPort) {
   gps = TinyGPSPlus();
@@ -16,7 +16,7 @@ GpsSensor::GpsSensor(SoftwareSerial *serialPort) {
 }
 
 float GpsSensor::currentSpeed() {
-
+  Serial.print ("reading..");
 #ifdef TEST
 #warning "Hardcoded values used!"
 
@@ -26,8 +26,8 @@ float GpsSensor::currentSpeed() {
 
 #else
 
-  while (ss.available() > 0)
-    gps.encode(ss.read());
+  while (ss->available() > 0)
+    gps.encode(ss->read());
 
 #endif
 
