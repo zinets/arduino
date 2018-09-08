@@ -16,4 +16,5 @@ void loop() {
   gpsSensor->updateGpsData();
   oledDisplay->update(gpsSensor->currentGpsData);
   
+  delay(1000);
 }

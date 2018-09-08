@@ -25,11 +25,17 @@ void GpsSensor::updateGpsData() {
   currentGpsData.isValid = gps->location.age() < 2000;
   currentGpsData.numberOfSats = gps->satellites.value();
 
+  Serial.print("updated");
+  Serial.println(gps->satellites.value());
+  Serial.println(gps->location.lat());
+  Serial.println(gps->location.lng());
+  Serial.println(gps->speed.kmph());
+
   if (gps->location.isUpdated()) {
     currentGpsData.lat = gps->location.lat();
     currentGpsData.lon = gps->location.lng();
   }
-  if (gps->speed.isUpdated()) {
+  if (gps->speed.isUpdated()) { 
     currentGpsData.speed = gps->speed.kmph();
   }  
 }
