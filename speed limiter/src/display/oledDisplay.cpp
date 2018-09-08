@@ -11,7 +11,7 @@ OledDisplay::OledDisplay() {
 
     //Add stuff into the 'display buffer'
     display->setTextWrap(false);
-    display->setTextSize(1);
+    display->setTextSize(2);
     display->setTextColor(WHITE);
     display->setCursor(0,0);
     display->println("ready");
@@ -35,7 +35,8 @@ void OledDisplay::update(GpsData gpsData) {
         display->println("lon: ??");
         display->println("spd: --");
     }
-    display->print("stas: ");
+    display->print("sats: ");
     display->println(gpsData.numberOfSats);
+    display->invertDisplay(gpsData.isValid);
     display->display();
 }
