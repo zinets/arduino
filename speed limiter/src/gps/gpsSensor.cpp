@@ -1,4 +1,5 @@
 #include "gpsSensor.h"
+#include <ArduinoLog.h>
 
 const char *gpsStream =
   "$GPRMC,045103.000,A,3014.1984,N,09749.2872,W,0.67,161.46,030913,,,A*7C\r\n"
@@ -18,26 +19,37 @@ GpsSensor::GpsSensor(int rxPin, int txPin, int gpsSpeed) {
 
 void GpsSensor::updateGpsData() {
 
-  while (ss->available()) {
-    gps->encode(ss->read());
-  }
+  // while (ss->available()) {
+  //   gps->encode(ss->read());
+  // }
 
-  currentGpsData.isValid = gps->location.age() < 2000;
   currentGpsData.numberOfSats = gps->satellites.value();
+  currentGpsData.isValid = currentGpsData.numberOfSats > 4;
 
-  Serial.print("updated ");
-  Serial.println(gps->satellites.value());
+  Log.notice("sats %d"CR, currentGpsData.numberOfSats);
 
   if (gps->location.isUpdated()) {
     currentGpsData.lat = gps->location.lat();
     currentGpsData.lon = gps->location.lng();
-
-    Serial.println(gps->location.lat());
-    Serial.println(gps->location.lng());
-
+    Log.notice(" %D, %D"CR, currentGpsData.lat, currentGpsData.lon);
   }
   if (gps->speed.isUpdated()) { 
     currentGpsData.speed = gps->speed.kmph();
-    Serial.println(gps->speed.kmph());
+    Log.notice(" %D kmph"CR, currentGpsData.speed);
   }  
+
+  smartDelay(0);
+}
+
+void GpsSensor::smartDelay(unsigned long ms) {
+  unsigned long start = millis();
+  do {
+    while (ss->available())
+      gps->encode(ss->read());
+  } while (millis() - start < ms);
+
+  if (millis() > 5000 && gps->charsProcessed() < 10) {
+    Log.error(F("No GPS data received: check wiring"));
+    // alarm.makeNoise();
+  }
 }

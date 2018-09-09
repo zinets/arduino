@@ -8,7 +8,7 @@ typedef enum State {
     StateOverSpeed2, // alarm-alarm!
 } State;
 
-static float minimumSpeed = 6;
+static float minimumSpeed = 0.6;
 static float maxCitySpeed = 25;
 static float maxCountrySideSpeed = 50;
 
@@ -32,22 +32,12 @@ OledDisplay::OledDisplay() {
 
 void OledDisplay::update(GpsData gpsData) {
     display->clearDisplay();
-    // Serial.print("speed (2)"); Serial.println(gpsData.speed);
-
-    // display->setTextSize(3);
-    // display->invertDisplay(false);
-    // display->setCursor(0, 0);
-    // display->println(gpsData.speed);
-    // display->display();
-
-    // return;
-
-    if (/*!gpsData.isValid || */gpsData.numberOfSats < 5) {
+    
+    if (!gpsData.isValid) {
         displayStateNoSats();      
     } else if (gpsData.speed < minimumSpeed) {
         displayStateNoSpeed(gpsData.numberOfSats);
     } else if (gpsData.speed < maxCitySpeed) {
-        // Serial.println("!");
         displayStateCitySpeed(gpsData.speed);
     } else if (gpsData.speed < maxCountrySideSpeed && countrySideDriving) {
         displayStateCountrySideSpeed(gpsData.speed);
@@ -75,7 +65,7 @@ void OledDisplay::displayStateNoSpeed(int numOfSats) {
 
 void OledDisplay::displayStateCitySpeed(float speed) {
     // вывести текущую скорость
-    display->setTextSize(1);
+    display->setTextSize(3);
     display->invertDisplay(false);
     display->setCursor(0, 0);
     display->println(speed);

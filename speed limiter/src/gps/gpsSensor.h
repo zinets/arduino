@@ -12,4 +12,5 @@ public:
 
   GpsData currentGpsData;
   void updateGpsData();
+  void smartDelay(unsigned long ms);
 };
