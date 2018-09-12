@@ -313,7 +313,7 @@ void loop() {
       // таймер запущен и нажата кнопка - посылка в порт сигнала
       else if (timeStruct.timerStarted && bouncer.update()) {
         if (bouncer.fell()) {
-          Serial.println("$screen.On");
+          Serial.println("screenOff");
         }
       }
       break;
