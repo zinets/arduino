@@ -1,22 +1,15 @@
 #include "oledDisplay.h"
+#include "..\images\oledImages.h"
 
-typedef enum State {
-    StateNoStas, // no sats
-    StateNoSpeed, // speed less than 5 kmph
-    StateNormalSpeed, // speed for city
-    StateOverSpeed1, // speed for country-side
-    StateOverSpeed2, // alarm-alarm!
-} State;
+static const int oledReset = 0;
 
-static float minimumSpeed = 0.6;
+static float minimumSpeed = 6;
 static float maxCitySpeed = 25;
 static float maxCountrySideSpeed = 50;
 
-#define OLED_RESET 0  // GPIO0
-Adafruit_SSD1306 display(OLED_RESET);
 
 OledDisplay::OledDisplay() {
-    display = new Adafruit_SSD1306(OLED_RESET);
+    display = new Adafruit_SSD1306(oledReset);
     
     display->begin();
     display->clearDisplay();
@@ -26,7 +19,6 @@ OledDisplay::OledDisplay() {
     display->setTextSize(2);
     display->setTextColor(WHITE);
     display->setCursor(0,0);
-    
     display->display(); //output 'display buffer' to screen 
 }
 
@@ -46,20 +38,23 @@ void OledDisplay::update(GpsData gpsData) {
     }
 }
 
+// default font size 6x8, setTextSize(x) -> 6*x x 8*x
+
 void OledDisplay::displayStateNoSats() {
     // нарисовать иконку спутника
-    display->setTextSize(3);
+    display->drawBitmap(64, 0, image_data_searchSat, 64, 64, 1);
     display->setCursor(0, 0);
-    display->print("NO SATS!");
+    display->print(countrySideDriving ? "^^" : "vv");
     display->display();
 }
 
 void OledDisplay::displayStateNoSpeed(int numOfSats) {
     // выести кол-во спутников
-    display->setTextSize(3);
-    display->setCursor(0, 0);
-    display->print("SATS: ");
+    display->drawBitmap(64, 0, image_data_sat, 64, 64, 1);
+    display->setTextSize(2);
+    display->setCursor(128 - 12 * (numOfSats > 10 ? 2 : 1) - 3, 3);
     display->print(numOfSats);
+    display->print(countrySideDriving ? "^^" : "vv");
     display->display();
 }
 
