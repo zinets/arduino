@@ -44,17 +44,16 @@ void OledDisplay::displayStateNoSats() {
     // нарисовать иконку спутника
     display->drawBitmap(64, 0, image_data_searchSat, 64, 64, 1);
     display->setCursor(0, 0);
-    display->print(countrySideDriving ? "^^" : "vv");
+    display->drawBitmap(128-16, 0, countrySideDriving ? image_data_country : image_data_city, 16, 16, 1);
     display->display();
 }
 
 void OledDisplay::displayStateNoSpeed(int numOfSats) {
-    // выести кол-во спутников
+    // вывести кол-во спутников
     display->drawBitmap(64, 0, image_data_sat, 64, 64, 1);
     display->setTextSize(2);
     display->setCursor(128 - 12 * (numOfSats > 10 ? 2 : 1) - 3, 3);
     display->print(numOfSats);
-    display->print(countrySideDriving ? "^^" : "vv");
     display->display();
 }
 

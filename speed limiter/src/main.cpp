@@ -22,22 +22,27 @@ void setup() {
   gpsSensor = new GpsSensor(RXPin, TXPin, GPSBaud);
   oledDisplay = new OledDisplay(); 
 
-  // debouncer.attach(buttonPin, INPUT_PULLUP);
-  // debouncer.interval(50);  
+  debouncer.attach(buttonPin, INPUT_PULLUP);
+  debouncer.interval(50);  
 
-  alarm.makeNoise();
+  alarm.makeStartNoise();
 }   
 
 void loop() {
-  gpsSensor->updateGpsData();
-  oledDisplay->update(gpsSensor->currentGpsData);
   
-  debouncer.update();
-  
-  // if (debouncer.fell()) {
-  //   Log.notice("pressed!");
-  //   oledDisplay->countrySideDriving = !oledDisplay->countrySideDriving;
-  // }
+    if (gpsSensor->updateGpsData()) {
+      oledDisplay->update(gpsSensor->currentGpsData);
+    }
+    
+    debouncer.update();
+    
+    if (debouncer.fell()) {
+      Log.notice("pressed!");
+      oledDisplay->countrySideDriving = !oledDisplay->countrySideDriving;
 
-  gpsSensor->smartDelay(1000);
+      alarm.makeTripleBeepNoise();
+    }
+  
+    alarm.update();
+  
 }

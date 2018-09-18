@@ -17,39 +17,42 @@ GpsSensor::GpsSensor(int rxPin, int txPin, int gpsSpeed) {
   ss->begin(gpsSpeed);
 }
 
-void GpsSensor::updateGpsData() {
+bool GpsSensor::updateGpsData() {
+  bool res = smartDelay(0);
 
-  // while (ss->available()) {
-  //   gps->encode(ss->read());
-  // }
+  if (res) {
+    currentGpsData.numberOfSats = gps->satellites.value();
+    currentGpsData.isValid = currentGpsData.numberOfSats > 4;
 
-  currentGpsData.numberOfSats = gps->satellites.value();
-  currentGpsData.isValid = currentGpsData.numberOfSats > 4;
+    Log.notice("sats %d"CR, currentGpsData.numberOfSats);
 
-  Log.notice("sats %d"CR, currentGpsData.numberOfSats);
-
-  if (gps->location.isUpdated()) {
-    currentGpsData.lat = gps->location.lat();
-    currentGpsData.lon = gps->location.lng();
-    Log.notice(" %D, %D"CR, currentGpsData.lat, currentGpsData.lon);
+    if (gps->location.isUpdated()) {
+      currentGpsData.lat = gps->location.lat();
+      currentGpsData.lon = gps->location.lng();
+      Log.notice(" %D, %D"CR, currentGpsData.lat, currentGpsData.lon);
+    }
+    if (gps->speed.isUpdated()) { 
+      currentGpsData.speed = gps->speed.kmph();
+      Log.notice(" %D kmph"CR, currentGpsData.speed);
+    }  
   }
-  if (gps->speed.isUpdated()) { 
-    currentGpsData.speed = gps->speed.kmph();
-    Log.notice(" %D kmph"CR, currentGpsData.speed);
-  }  
-
-  smartDelay(0);
+  return res;
 }
 
-void GpsSensor::smartDelay(unsigned long ms) {
+bool GpsSensor::smartDelay(unsigned long ms) {
   unsigned long start = millis();
+  bool res = false;
   do {
-    while (ss->available())
+    while (ss->available()) {
       gps->encode(ss->read());
+      res = true;
+    }
   } while (millis() - start < ms);
 
   if (millis() > 5000 && gps->charsProcessed() < 10) {
     Log.error(F("No GPS data received: check wiring"));
     // alarm.makeNoise();
   }
+
+  return res;
 }
