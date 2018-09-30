@@ -33,18 +33,18 @@ void AudioAlarm::makeNoise(int *p, int pLen) {
     pattern = p;
     patternLength = pLen;  
 
-    update(); 
+    update(nextMillis); 
 }
 
-void AudioAlarm::update() {
+void AudioAlarm::update(int millis) {
     if (!buzy) {
         return;
     }
 
-    if (millis() >= nextMillis) {
+    if (millis >= nextMillis) {
         digitalWrite(outPin, index % 2 == 0 ? HIGH : LOW);
 
-        nextMillis = millis() + pattern[index];
+        nextMillis = millis + pattern[index];
         if (++index >= patternLength) {
             buzy = false;
         } 

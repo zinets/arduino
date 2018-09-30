@@ -29,20 +29,20 @@ void setup() {
 }   
 
 void loop() {
-  
+    unsigned long ms = millis();
+
     if (gpsSensor->updateGpsData()) {
-      oledDisplay->update(gpsSensor->currentGpsData);
+      oledDisplay->gpsData = gpsSensor->currentGpsData;
     }
     
-    debouncer.update();
-    
+    debouncer.update();    
     if (debouncer.fell()) {
       Log.notice("pressed!");
-      oledDisplay->countrySideDriving = !oledDisplay->countrySideDriving;
+      oledDisplay->changeDrivingMode();
 
       alarm.makeTripleBeepNoise();
     }
   
-    alarm.update();
-  
+    alarm.update(ms);
+    oledDisplay->update(ms);
 }

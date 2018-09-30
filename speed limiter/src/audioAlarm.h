@@ -15,5 +15,6 @@ public:
     void makeStartNoise();
     void makeDoubleBeepNoise();
     void makeTripleBeepNoise();
-    void update();
+
+    void update(int millis);
 };
