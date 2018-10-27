@@ -56,7 +56,6 @@ void loop() {
     
     debouncer.update();    
     if (debouncer.fell()) {
-      Log.notice("pressed!");
       oledDisplay->changeDrivingMode();
 
       alarm.makeTripleBeepNoise();

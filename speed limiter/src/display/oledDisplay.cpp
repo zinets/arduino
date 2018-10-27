@@ -15,8 +15,8 @@ OledDisplay::OledDisplay() {
     nextTimeToUpdate = 0;
 
     gpsData.isValid = false;
-    gpsData.speed = 0;
-    gpsData.numberOfSats = 0;
+    gpsData.speed = 110;
+    gpsData.numberOfSats = 8;
     
     display->begin();
     display->clearDisplay();
@@ -77,7 +77,8 @@ void OledDisplay::displayStateNoSpeed(int numOfSats) {
     // вывести кол-во спутников
     display->drawBitmap(64, 0, image_data_sat, 64, 64, 1);
     display->setTextSize(2);
-    display->setCursor(128 - 12 * (numOfSats > 10 ? 2 : 1) - 3, 3);
+    // display->setCursor(128 - 12 * (numOfSats > 10 ? 2 : 1) - 3, 3);
+    display->setCursor(64, 64 - 16);
     display->print(numOfSats);
 }
 
@@ -85,7 +86,7 @@ void OledDisplay::displayStateCitySpeed(float speed) {
     // вывести текущую скорость
     display->setTextSize(3);
     display->invertDisplay(false);
-    display->setCursor(0, 0);
+    display->setCursor(0, 16);
     display->println(speed);
 }
 
@@ -97,7 +98,7 @@ void OledDisplay::displayStateSpeedOfLight(float speed) {
     // вывести скорость инвертировано
     display->setTextSize(3);
     display->invertDisplay(true);
-    display->setCursor(0, 0);
+    display->setCursor(0, 16);
     display->print(speed);
 }
 
