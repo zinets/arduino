@@ -1,32 +1,41 @@
 #include "oledDisplay.h"
 #include "..\images\oledImages.h"
 
+#ifdef DEBUG
+#include <ArduinoLog.h>  // id: 1532
+#endif
+
 static const int oledReset = 0;
 
 static float minimumSpeed = 6;
 static float maxCitySpeed = 25;
 static float maxCountrySideSpeed = 50;
 
-static int updatePeriod = 250; // ms
+static int updatePeriod = 1000; //250; // ms
 
 
 OledDisplay::OledDisplay() {
     display = new Adafruit_SSD1306(oledReset);
+    nextTimeToUpdate = 0;
+
+    gpsData.isValid = true;
+    gpsData.speed = 4;
+    gpsData.numberOfSats = 3;
     
     display->begin();
     display->clearDisplay();
 
-    //Add stuff into the 'display buffer'
     display->setTextWrap(false);
     display->setTextSize(2);
     display->setTextColor(WHITE);
     display->setCursor(0,0);
-    display->display(); //output 'display buffer' to screen 
+
+    display->display(); 
 }
 
 void OledDisplay::updateGpsData() {
     display->clearDisplay();
-    
+    // Log.notice("update gps data...");
     if (!gpsData.isValid) {
         displayStateNoSats();      
     } else if (gpsData.speed < minimumSpeed) {
@@ -53,6 +62,7 @@ void OledDisplay::changeDrivingMode() {
 
 void OledDisplay::update(unsigned long millis) {
     if (millis >= nextTimeToUpdate) {
+        // Log.notice("update: %l"CR, millis);
         nextTimeToUpdate = millis + updatePeriod;
 
         updateGpsData();
