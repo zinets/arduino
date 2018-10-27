@@ -2,7 +2,9 @@
 #include "gps/gpsSensor.h"
 #include "audioAlarm.h"
 
+#ifdef DEBUG
 #include <ArduinoLog.h>  // id: 1532
+#endif
 #include <Bounce2.h>     // id: 1106
 
 #ifdef TARGET_ESP8266
@@ -24,13 +26,18 @@ static const int buttonPin = 16;
 GpsSensor *gpsSensor;
 OledDisplay *oledDisplay;
 AudioAlarm alarm(audioAlarmPin);
-Bounce debouncer = Bounce(); 
+// Bounce debouncer = Bounce(); 
 
 void setup() {
   Serial.begin(9600);
+  #ifdef DEBUG
   Log.begin(LOG_LEVEL_VERBOSE, &Serial);
 
+  Log.notice("setup() started");
+  #endif
+
   // gpsSensor = new GpsSensor(RXPin, TXPin, GPSBaud);
+
   oledDisplay = new OledDisplay(); 
 
   // debouncer.attach(buttonPin, INPUT_PULLUP);
@@ -39,11 +46,13 @@ void setup() {
   alarm.makeStartNoise();
 }   
 
+
 void loop() {
     unsigned long ms = millis();
 
     // if (gpsSensor->updateGpsData()) {
     //   oledDisplay->gpsData = gpsSensor->currentGpsData;
+       
     // }
     
     // debouncer.update();    

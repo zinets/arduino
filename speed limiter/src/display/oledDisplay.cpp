@@ -1,10 +1,6 @@
 #include "oledDisplay.h"
 #include "..\images\oledImages.h"
 
-#ifdef DEBUG
-#include <ArduinoLog.h>  // id: 1532
-#endif
-
 static const int oledReset = 0;
 
 static float minimumSpeed = 6;
@@ -18,9 +14,9 @@ OledDisplay::OledDisplay() {
     display = new Adafruit_SSD1306(oledReset);
     nextTimeToUpdate = 0;
 
-    gpsData.isValid = true;
-    gpsData.speed = 4;
-    gpsData.numberOfSats = 3;
+    gpsData.isValid = false;
+    gpsData.speed = 0;
+    gpsData.numberOfSats = 0;
     
     display->begin();
     display->clearDisplay();
@@ -35,7 +31,7 @@ OledDisplay::OledDisplay() {
 
 void OledDisplay::updateGpsData() {
     display->clearDisplay();
-    // Log.notice("update gps data...");
+
     if (!gpsData.isValid) {
         displayStateNoSats();      
     } else if (gpsData.speed < minimumSpeed) {
@@ -62,7 +58,6 @@ void OledDisplay::changeDrivingMode() {
 
 void OledDisplay::update(unsigned long millis) {
     if (millis >= nextTimeToUpdate) {
-        // Log.notice("update: %l"CR, millis);
         nextTimeToUpdate = millis + updatePeriod;
 
         updateGpsData();
@@ -76,7 +71,6 @@ void OledDisplay::displayStateNoSats() {
     display->drawBitmap(64, 0, image_data_searchSat, 64, 64, 1);
     display->setCursor(0, 0);
     // display->drawBitmap(128-16, 0, countrySideDriving ? image_data_country : image_data_city, 16, 16, 1);
-    // display->display();
 }
 
 void OledDisplay::displayStateNoSpeed(int numOfSats) {
@@ -85,7 +79,6 @@ void OledDisplay::displayStateNoSpeed(int numOfSats) {
     display->setTextSize(2);
     display->setCursor(128 - 12 * (numOfSats > 10 ? 2 : 1) - 3, 3);
     display->print(numOfSats);
-    // display->display();
 }
 
 void OledDisplay::displayStateCitySpeed(float speed) {
@@ -94,7 +87,6 @@ void OledDisplay::displayStateCitySpeed(float speed) {
     display->invertDisplay(false);
     display->setCursor(0, 0);
     display->println(speed);
-    // display->display();
 }
 
 void OledDisplay::displayStateCountrySideSpeed(float speed) {
@@ -107,10 +99,8 @@ void OledDisplay::displayStateSpeedOfLight(float speed) {
     display->invertDisplay(true);
     display->setCursor(0, 0);
     display->print(speed);
-    // display->display();
 }
 
 void OledDisplay::displayCityMode() {
     display->drawBitmap(128-16, 0, countrySideDriving ? image_data_country : image_data_city, 16, 16, 1);
-    // display->display();
 }
