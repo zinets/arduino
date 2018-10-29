@@ -13,6 +13,8 @@ static const int RXPin = 12, TXPin = 13; // D6, D7
 static const uint32_t GPSBaud = 9600;
 static const int audioAlarmPin = 14;  // D5
 static const int buttonPin = 16;      // D0
+
+#include <SoftwareSerial.h>
 #endif
 
 #ifdef TARGET_AVR
@@ -32,17 +34,20 @@ void setup() {
 
 #ifdef TARGET_ESP8266
   Serial.begin(9600);
-  gpsSensor = new GpsSensor(RXPin, TXPin, GPSBaud);
+
+  SoftwareSerial *ss = new SoftwareSerial(RXPin, TXPin);
+  ss->begin(GPSBaud);
+  gpsSensor = new GpsSensor(ss);
+
+  #ifdef DEBUG
+  Log.begin(LOG_LEVEL_VERBOSE, &Serial);
+  #endif
+
 #else
   Serial.begin(GPSBaud);
   gpsSensor = new GpsSensor(&Serial);
 #endif
-  
-#ifdef DEBUG
-  Log.begin(LOG_LEVEL_VERBOSE, &Serial);
-#endif
-
-  
+    
   oledDisplay = new OledDisplay(); 
   
   debouncer.attach(buttonPin, INPUT_PULLUP);

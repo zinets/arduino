@@ -1,17 +1,9 @@
 #include "gpsSensor.h"
-#ifdef DEBUG
-#include <ArduinoLog.h>
-#endif
+// #ifdef DEBUG
+// #include <ArduinoLog.h>
+// #endif
 
-GpsSensor::GpsSensor(int rxPin, int txPin, int gpsSpeed) {
-  gps = new TinyGPSPlus();
-  SoftwareSerial *ss = new SoftwareSerial(rxPin, txPin);
-  ss->begin(gpsSpeed);
-
-  stream = ss;
-}
-
-GpsSensor::GpsSensor(HardwareSerial *serial) {
+GpsSensor::GpsSensor(Stream *serial) {
   gps = new TinyGPSPlus();
   stream = serial;
 }

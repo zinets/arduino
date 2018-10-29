@@ -1,6 +1,4 @@
 #include <TinyGPS++.h>
-#include <SoftwareSerial.h>
-
 #include "gpsData.h"
 
 class GpsSensor {
@@ -9,8 +7,7 @@ private:
   Stream *stream;
   bool smartDelay(unsigned long ms);
 public:
-  GpsSensor(int rxPin, int txPin, int gpsSpeed);
-  GpsSensor(HardwareSerial *serial);
+  GpsSensor(Stream *serial);
 
   GpsData currentGpsData;
   bool updateGpsData();
