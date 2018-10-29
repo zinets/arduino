@@ -1,6 +1,10 @@
 #include "oledDisplay.h"
 #include "..\images\oledImages.h"
 
+#ifdef DEBUG
+#include <ArduinoLog.h>  // id: 1532
+#endif
+
 static const int oledReset = 0;
 
 static float minimumSpeed = 6;
@@ -13,11 +17,10 @@ static int updatePeriod = 1000; //250; // ms
 OledDisplay::OledDisplay() {
     display = new Adafruit_SSD1306(oledReset);
     nextTimeToUpdate = 0;
-
     gpsData.isValid = false;
     gpsData.speed = 110;
     gpsData.numberOfSats = 8;
-    
+
     display->begin();
     display->clearDisplay();
 
@@ -25,7 +28,6 @@ OledDisplay::OledDisplay() {
     display->setTextSize(2);
     display->setTextColor(WHITE);
     display->setCursor(0,0);
-
     display->display(); 
 }
 

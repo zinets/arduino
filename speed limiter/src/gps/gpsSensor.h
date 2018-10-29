@@ -6,10 +6,11 @@
 class GpsSensor {
 private:
   TinyGPSPlus *gps;
-  SoftwareSerial *ss;
+  Stream *stream;
   bool smartDelay(unsigned long ms);
 public:
   GpsSensor(int rxPin, int txPin, int gpsSpeed);
+  GpsSensor(HardwareSerial *serial);
 
   GpsData currentGpsData;
   bool updateGpsData();

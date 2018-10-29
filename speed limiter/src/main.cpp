@@ -3,13 +3,13 @@
 #include "audioAlarm.h"
 
 #ifdef DEBUG
-#include <ArduinoLog.h>  // id: 1532
+// #include <ArduinoLog.h>  // id: 1532
 #endif
 #include <Bounce2.h>     // id: 1106
 
 #ifdef TARGET_ESP8266
 #warning BUILDING for esp
-static const int RXPin = 12, TXPin = 13;
+static const int RXPin = 12, TXPin = 13; // D6, D7
 static const uint32_t GPSBaud = 9600;
 static const int audioAlarmPin = 14;  // D5
 static const int buttonPin = 16;      // D0
@@ -17,7 +17,7 @@ static const int buttonPin = 16;      // D0
 
 #ifdef TARGET_AVR
 #warning BUILDING for avr
-static const int RXPin = 12, TXPin = 13;
+static const int RXPin = 2, TXPin = 3;
 static const uint32_t GPSBaud = 9600;
 static const int audioAlarmPin = 12;
 static const int buttonPin = 11;
@@ -29,29 +29,33 @@ AudioAlarm alarm(audioAlarmPin);
 Bounce debouncer = Bounce(); 
 
 void setup() {
+
+#ifdef TARGET_ESP8266
   Serial.begin(9600);
-
-  #ifdef DEBUG
+  gpsSensor = new GpsSensor(RXPin, TXPin, GPSBaud);
+#else
+  Serial.begin(GPSBaud);
+  gpsSensor = new GpsSensor(&Serial);
+#endif
+  
+#ifdef DEBUG
   Log.begin(LOG_LEVEL_VERBOSE, &Serial);
-  #endif
+#endif
 
-  // gpsSensor = new GpsSensor(RXPin, TXPin, GPSBaud);
-
+  
   oledDisplay = new OledDisplay(); 
-
+  
   debouncer.attach(buttonPin, INPUT_PULLUP);
   debouncer.interval(50);  
 
   alarm.makeStartNoise();
 }   
 
-
 void loop() {
     unsigned long ms = millis();
 
     // if (gpsSensor->updateGpsData()) {
-    //   oledDisplay->gpsData = gpsSensor->currentGpsData;
-       
+    //   oledDisplay->gpsData = gpsSensor->currentGpsData;       
     // }
     
     debouncer.update();    
