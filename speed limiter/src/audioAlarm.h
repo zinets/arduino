@@ -6,15 +6,16 @@ private:
     bool buzy;
     
     int nextMillis;
+    int nextWarningNoiseMillis;
     int index, patternLength;
-    int *pattern;
-    void makeNoise(int *pattern, int patternLen);
+    uint8_t *pattern;
+    void makeNoise(uint8_t *pattern, int patternLen, bool timeLimited = false);
 public:
     AudioAlarm(int pin);
     
-    void makeStartNoise();
-    void makeDoubleBeepNoise();
-    void makeTripleBeepNoise();
+    void makeStartNoise(); // single "beep" for start
+    void makeDoubleBeepNoise(); // 2 beeps after mode change
+    void makeTripleBeepNoise(); // 3 beeps for overspeed warning
 
     void update(int millis);
 };

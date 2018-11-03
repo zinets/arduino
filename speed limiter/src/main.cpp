@@ -59,16 +59,21 @@ void loop() {
     unsigned long ms = millis();
 
     if (gpsSensor->updateGpsData()) {
-      oledDisplay->gpsData = gpsSensor->currentGpsData;       
+      oledDisplay->gpsData = gpsSensor->currentGpsData;             
     }
     
     debouncer.update();    
     if (debouncer.fell()) {
       oledDisplay->changeDrivingMode();
 
-      alarm.makeTripleBeepNoise();
+      alarm.makeDoubleBeepNoise();
     }
-  
+
+    if (oledDisplay->speedLimitReached) {
+      Serial.println("!");
+      alarm.makeTripleBeepNoise();    
+    }
+
     alarm.update(ms);
     oledDisplay->update(ms);
 }

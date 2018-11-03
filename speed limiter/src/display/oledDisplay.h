@@ -21,7 +21,9 @@ private:
 public:
     OledDisplay();  
     GpsData gpsData;
+    bool speedLimitReached;
 
     void changeDrivingMode();
     void update(unsigned long millis);
+    bool overSpeed(); // did reach speed limit?
 };

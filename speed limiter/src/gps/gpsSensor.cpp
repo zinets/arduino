@@ -30,7 +30,7 @@ bool GpsSensor::updateGpsData() {
     // debug!!!
     currentGpsData.numberOfSats = 5;
     currentGpsData.isValid = currentGpsData.numberOfSats > 4;
-    currentGpsData.speed = 15;
+    currentGpsData.speed = 45;
     res = true;
   }
   return res;
@@ -45,7 +45,7 @@ bool GpsSensor::smartDelay(unsigned long ms) {
       readed = stream->read();
       gps->encode(readed);
 // debug!!
-      stream->write(readed);
+      // stream->write(readed);
 
       res = true;
     }
