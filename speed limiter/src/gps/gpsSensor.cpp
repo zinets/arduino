@@ -10,7 +10,7 @@ GpsSensor::GpsSensor(Stream *serial) {
 
 bool GpsSensor::updateGpsData() {
   bool res = smartDelay(0);
-
+  
   if (res) {
     currentGpsData.numberOfSats = gps->satellites.value();
     currentGpsData.isValid = currentGpsData.numberOfSats > 4;
@@ -26,6 +26,12 @@ bool GpsSensor::updateGpsData() {
       currentGpsData.speed = gps->speed.kmph();
       // Log.notice(" %D kmph"CR, currentGpsData.speed);
     }  
+  } else {
+    // debug!!!
+    currentGpsData.numberOfSats = 5;
+    currentGpsData.isValid = currentGpsData.numberOfSats > 4;
+    currentGpsData.speed = 15;
+    res = true;
   }
   return res;
 }
@@ -33,9 +39,14 @@ bool GpsSensor::updateGpsData() {
 bool GpsSensor::smartDelay(unsigned long ms) {
   unsigned long start = millis();
   bool res = false;
+  int readed;
   do {
     while (stream->available()) {
-      gps->encode(stream->read());
+      readed = stream->read();
+      gps->encode(readed);
+// debug!!
+      stream->write(readed);
+
       res = true;
     }
   } while (millis() - start < ms);

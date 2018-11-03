@@ -19,7 +19,6 @@ static const int buttonPin = 16;      // D0
 
 #ifdef TARGET_AVR
 #warning BUILDING for avr
-static const int RXPin = 2, TXPin = 3;
 static const uint32_t GPSBaud = 9600;
 static const int audioAlarmPin = 12;
 static const int buttonPin = 11;
@@ -59,9 +58,9 @@ void setup() {
 void loop() {
     unsigned long ms = millis();
 
-    // if (gpsSensor->updateGpsData()) {
-    //   oledDisplay->gpsData = gpsSensor->currentGpsData;       
-    // }
+    if (gpsSensor->updateGpsData()) {
+      oledDisplay->gpsData = gpsSensor->currentGpsData;       
+    }
     
     debouncer.update();    
     if (debouncer.fell()) {
