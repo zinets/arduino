@@ -30,6 +30,7 @@ AudioAlarm alarm(audioAlarmPin);
 Bounce debouncer = Bounce(); 
 
 int nextWarningMillis = 0;
+#define NEXT_WARNING_TIMEOUT 30
 
 void setup() {
 
@@ -70,10 +71,7 @@ void loop() {
     if (gpsSensor->updateGpsData()) {
       oledDisplay->gpsData = gpsSensor->currentGpsData;  
       if (oledDisplay->speedLimitReached && ms > nextWarningMillis) {
-        nextWarningMillis = ms + 6 * 1000;
-          
-          Serial.println("!");
-
+        nextWarningMillis = ms + NEXT_WARNING_TIMEOUT * 1000;
         alarm.makeTripleBeepNoise();
       }           
     }

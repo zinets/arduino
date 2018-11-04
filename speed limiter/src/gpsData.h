@@ -2,8 +2,8 @@
 #define _gpsData
 struct GpsData {
   bool isValid;
-  double lat;
-  double lon;
+  // double lat;
+  // double lon;
   float speed;
   int numberOfSats;
 };
