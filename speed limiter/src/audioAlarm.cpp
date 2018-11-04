@@ -7,8 +7,8 @@ static uint8_t alarmNoise[] = {100, 50, 100, 50, 250, 0}; // "alarm-alarm" beep
 AudioAlarm::AudioAlarm(int pin) {
     outPin = pin;
     
-    nextWarningNoiseMillis = 0;
     buzy = false;
+    nextMillis = 0;
 
     pinMode(outPin, OUTPUT);
 }
@@ -22,23 +22,16 @@ void AudioAlarm::makeDoubleBeepNoise() {
 }
 
 void AudioAlarm::makeTripleBeepNoise() {
-    makeNoise(&alarmNoise[0], 6, true);
+    makeNoise(&alarmNoise[0], 6);
 }
 
-void AudioAlarm::makeNoise(uint8_t *p, int pLen, bool timeLimited) {
+void AudioAlarm::makeNoise(uint8_t *p, int pLen) {
     if (buzy) {
         return;
     }
     
     nextMillis = millis();
-    if (timeLimited) {
-        if (nextMillis < nextWarningNoiseMillis) {
-            return;
-        } else {
-            nextWarningNoiseMillis = nextMillis + 6 * 1000;
-        }
-    }
-
+    
     index = 0; 
     buzy = true;
 

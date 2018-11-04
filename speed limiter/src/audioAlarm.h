@@ -6,10 +6,10 @@ private:
     bool buzy;
     
     int nextMillis;
-    int nextWarningNoiseMillis;
+    
     int index, patternLength;
     uint8_t *pattern;
-    void makeNoise(uint8_t *pattern, int patternLen, bool timeLimited = false);
+    void makeNoise(uint8_t *pattern, int patternLen);
 public:
     AudioAlarm(int pin);
     

@@ -29,6 +29,8 @@ OledDisplay *oledDisplay;
 AudioAlarm alarm(audioAlarmPin);
 Bounce debouncer = Bounce(); 
 
+int nextWarningMillis = 0;
+
 void setup() {
 
 #ifdef TARGET_ESP8266
@@ -58,10 +60,6 @@ void setup() {
 void loop() {
     unsigned long ms = millis();
 
-    if (gpsSensor->updateGpsData()) {
-      oledDisplay->gpsData = gpsSensor->currentGpsData;             
-    }
-    
     debouncer.update();    
     if (debouncer.fell()) {
       oledDisplay->changeDrivingMode();
@@ -69,11 +67,17 @@ void loop() {
       alarm.makeDoubleBeepNoise();
     }
 
-    if (oledDisplay->speedLimitReached) {
-      Serial.println("!");
-      alarm.makeTripleBeepNoise();    
-    }
+    if (gpsSensor->updateGpsData()) {
+      oledDisplay->gpsData = gpsSensor->currentGpsData;  
+      if (oledDisplay->speedLimitReached && ms > nextWarningMillis) {
+        nextWarningMillis = ms + 6 * 1000;
+          
+          Serial.println("!");
 
+        alarm.makeTripleBeepNoise();
+      }           
+    }
+    
     alarm.update(ms);
     oledDisplay->update(ms);
 }
