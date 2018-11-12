@@ -1,14 +1,32 @@
+// AUTOMATICALLY GENERATED FILE. PLEASE DO NOT MODIFY IT MANUALLY
+
+// PIO Unified Debugger
+//
+// Documentation: https://docs.platformio.org/page/plus/debugging.html
+// Configuration: https://docs.platformio.org/page/projectconf/section_env_debug.html
+
 {
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "gdb",
+            "type": "platformio-debug",
             "request": "launch",
-            "cwd": "${workspaceRoot}",
-            "name": "PlatformIO Debugger",
-            "target": "/Users/zinets/Documents/projects/home projects/arduino/work_timer/.pioenvs/nanoatmega328/firmware.elf",
-            "gdbpath": "/Users/zinets/.platformio/penv/bin/piodebuggdb",
-            "autorun": [ "source .pioinit" ]
+            "name": "PIO Debug",
+            "executable": "c:/Users/zinet/Documents/projects/work_timer/.pioenvs/nanoatmega328/firmware.elf",
+            "toolchainBinDir": "C:/Users/zinet/.platformio/packages/toolchain-atmelavr/bin",
+            "preLaunchTask": {
+                "type": "PlatformIO",
+                "task": "Pre-Debug"
+            },
+            "internalConsoleOptions": "openOnSessionStart"
+        },
+        {
+            "type": "platformio-debug",
+            "request": "launch",
+            "name": "PIO Debug (skip Pre-Debug)",
+            "executable": "c:/Users/zinet/Documents/projects/work_timer/.pioenvs/nanoatmega328/firmware.elf",
+            "toolchainBinDir": "C:/Users/zinet/.platformio/packages/toolchain-atmelavr/bin",
+            "internalConsoleOptions": "openOnSessionStart"
         }
     ]
 }

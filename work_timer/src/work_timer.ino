@@ -61,7 +61,19 @@ const TProgmemRGBPalette16 ReadyColors_p FL_PROGMEM = {
     CRGB::ForestGreen
 };
 
+#ifdef TARGET_AVR
 LiquidCrystal lcd(12, 11, 9, 8, 7, 6);
+#endif
+
+#ifdef espressif8266
+//Define 74HC595 Connections
+const int Clock = D5;
+const int Data = D6;
+const int Latch = D7;
+
+LiquidCrystal lcd(D5, D6, D7);
+#endif
+
 RTC_DS1307 rtc;
 char buf[16];
 Bounce bouncer = Bounce();
