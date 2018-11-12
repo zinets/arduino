@@ -9,60 +9,18 @@
 #include "FastLED.h"
 #include "RTClib.h"
 
-#define NUM_LEDS 1
-#define DATA_PIN 4
+#include "consts.h"
+#include "hardware.h"
+
 CRGB leds[NUM_LEDS];
 
-enum LedState {
-  ledStateReady,
-  ledStateWork,
-  ledStateDinner,
-};
+
 volatile LedState ledState = ledStateReady;
 
-const TProgmemRGBPalette16 WorkColors_p FL_PROGMEM = {
-    CRGB::Orange,
-    CRGB::Maroon,
-
-    CRGB::DarkRed,
-    CRGB::Maroon,
-    CRGB::DarkRed,
-
-    CRGB::DarkRed,
-    CRGB::DarkRed,
-    CRGB::Red,
-    CRGB::Orange,
-
-    CRGB::White,
-    CRGB::Orange,
-    CRGB::Red,
-    CRGB::DarkRed
-};
-
-const TProgmemRGBPalette16 ReadyColors_p FL_PROGMEM = {
-    CRGB::DarkGreen,
-    CRGB::DarkGreen,
-    CRGB::DarkOliveGreen,
-    CRGB::DarkGreen,
-
-    CRGB::Green,
-    CRGB::ForestGreen,
-    CRGB::OliveDrab,
-    CRGB::Green,
-
-    CRGB::SeaGreen,
-    CRGB::MediumAquamarine,
-    CRGB::LimeGreen,
-    CRGB::YellowGreen,
-
-    CRGB::LightGreen,
-    CRGB::LawnGreen,
-    CRGB::MediumAquamarine,
-    CRGB::ForestGreen
-};
 
 #ifdef TARGET_AVR
 #include <LiquidCrystal.h>
+rs, en, d0, d1, d2, d3
 LiquidCrystal lcd(12, 11, 9, 8, 7, 6);
 #endif
 
@@ -79,99 +37,14 @@ LiquidCrystal lcd(D5, D6, D7);
 RTC_DS1307 rtc;
 char buf[16];
 Bounce bouncer = Bounce();
-#define BUTTON_PIN    3
-#define EEPROM_ADDR   0
 
-byte divider[8] = {
-  B01100,
-  B01100,
-  B01100,
-  B01100,
-  B01100,
-  B01100,
-  B01100,
-  B01100,
-};
-
-byte arrived[8] = {
-  B00000,
-  B00100,
-  B00010,
-  B11111,
-  B00010,
-  B00100,
-  B00000,
-  B00000,
-};
-
-byte exit_symbol[8] = {
-  B00000,
-  B00100,
-  B01110,
-  B10101,
-  B00100,
-  B00100,
-  B00100,
-  B00000,
-};
-
-byte clock_symbol[8] = {
-  B01110,
-  B10101,
-  B10101,
-  B10111,
-  B10001,
-  B10001,
-  B01110,
-  B00000,
-};
-
-byte dinner_symbol[8] = {
-  B10100,
-  B01010,
-  B00101,
-  B00000,
-  B00111,
-  B01111,
-  B10111,
-  B01111,
-};
-
-byte temp_symbol[8] = {
-  B00010,
-  B00101,
-  B00010,
-  B01000,
-  B11100,
-  B01000,
-  B01000,
-  B00110,
-};
-
-
-enum MainState {
-    stateTimeUpdated,
-    stateInactive,
-};
 volatile MainState mainState = stateInactive;
 
-enum DisplayState {
-  stateRemainTime, // оставшееся время в часах
-  stateFinishTime, // время ухода в ЧЧ:ММ
-  stateShowTemp,   // покажем температуру
-};
 volatile DisplayState displayState = stateRemainTime;
 int displayStateCounter = 0;
-
-typedef struct TimeObject {
-  bool timerStarted;
-  DateTime arriveTime;
-  DateTime endTime;
-} TimeObject;
-
+ 
 struct TimeObject timeStruct;
 
-#define ONE_WIRE_BUS 5
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 DeviceAddress insideThermometer;
