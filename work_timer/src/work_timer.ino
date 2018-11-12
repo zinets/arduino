@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <LiquidCrystal.h>
+
 #include <Wire.h>
 #include <Bounce2.h>
 #include <EEPROM.h>
@@ -62,10 +62,12 @@ const TProgmemRGBPalette16 ReadyColors_p FL_PROGMEM = {
 };
 
 #ifdef TARGET_AVR
+#include <LiquidCrystal.h>
 LiquidCrystal lcd(12, 11, 9, 8, 7, 6);
 #endif
 
-#ifdef espressif8266
+#ifdef TARGET_ESP8266
+#include "LiquidCrystal.h"
 //Define 74HC595 Connections
 const int Clock = D5;
 const int Data = D6;
