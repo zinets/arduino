@@ -64,74 +64,74 @@ void setup() {
 Serial.println("lcd inited");
 
   // RGB-led initialization
-  FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
-  CRGB color = ColorFromPalette(WorkColors_p, 0);
-  leds[0] = CRGB::Orange; //color;
-  FastLED.show();
-Serial.println("led inited");
+//   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
+//   CRGB color = ColorFromPalette(WorkColors_p, 0);
+//   leds[0] = CRGB::Orange; //color;
+//   FastLED.show();
+// Serial.println("led inited");
 
+//   // button initialization
+//   pinMode(BUTTON_PIN, INPUT);
+//   // eeprom
+//   if (digitalRead(BUTTON_PIN)) {
+//     timeStruct.timerStarted = false;
+//     lcd.setCursor(0, 0);
+//     lcd.print("EEPROM data empty");
+//     while (digitalRead(BUTTON_PIN));
+//   } else {
+//     EEPROM.get(EEPROM_ADDR, timeStruct);
+//     lcd.print("EEPROM data restored");
+//   }
+// Serial.println("backup data ready");
+//   bouncer.attach(BUTTON_PIN);
+//   bouncer.interval(5);
+// Serial.println("button inited");
 
-  // button initialization
-  pinMode(BUTTON_PIN, INPUT);
-  // eeprom
-  if (digitalRead(BUTTON_PIN)) {
-    timeStruct.timerStarted = false;
-    lcd.setCursor(0, 0);
-    lcd.print("EEPROM data empty");
-    while (digitalRead(BUTTON_PIN));
-  } else {
-    EEPROM.get(EEPROM_ADDR, timeStruct);
-    lcd.print("EEPROM data restored");
-  }
-Serial.println("backup data ready");
-  bouncer.attach(BUTTON_PIN);
-  bouncer.interval(5);
-Serial.println("button inited");
+//   // 1-wire initialization
+//   Serial.print("Locating devices...");
 
-  // 1-wire initialization
-  Serial.print("Locating devices...");
+//   sensors.begin();
+//   Serial.print("Found ");
+//   Serial.print(sensors.getDeviceCount(), DEC);
+//   Serial.println(" devices.");
 
-  sensors.begin();
-  Serial.print("Found ");
-  Serial.print(sensors.getDeviceCount(), DEC);
-  Serial.println(" devices.");
+//   Serial.print("Parasite power is: ");
+//   if (sensors.isParasitePowerMode())
+//     Serial.println("ON");
+//   else
+//     Serial.println("OFF");
 
-  Serial.print("Parasite power is: ");
-  if (sensors.isParasitePowerMode())
-    Serial.println("ON");
-  else
-    Serial.println("OFF");
+//   if (!sensors.getAddress(insideThermometer, 0)) {
+//     Serial.println("Unable to find address for Device 0");
+//   } else {
+//     oneWireInited = true;
+//     Serial.print("Device 0 Address: ");
+//     printAddress(insideThermometer);
+//     Serial.println();
+//   }
+// Serial.println("1-wire inited");
+//   currentTemp = updateTemperature();
+// Serial.print("int. temp: ");
+// Serial.println(currentTemp, 2);
 
-  if (!sensors.getAddress(insideThermometer, 0)) {
-    Serial.println("Unable to find address for Device 0");
-  } else {
-    oneWireInited = true;
-    Serial.print("Device 0 Address: ");
-    printAddress(insideThermometer);
-    Serial.println();
-  }
-Serial.println("1-wire inited");
-  currentTemp = updateTemperature();
-Serial.print("int. temp: ");
-Serial.println(currentTemp, 2);
+//   Wire.begin();
+//   rtc.begin();
+//   if (!rtc.isrunning()) {
+//     Serial.println("RTC is NOT running!");
+//     rtc.adjust(DateTime(__DATE__, __TIME__));
+//   }
+// Serial.println("RTC inited")  ;
 
-  Wire.begin();
-  rtc.begin();
-  if (!rtc.isrunning()) {
-    Serial.println("RTC is NOT running!");
-    rtc.adjust(DateTime(__DATE__, __TIME__));
-  }
-Serial.println("RTC inited")  ;
-
-  // 1 Hz timer
-  rtc.writeSqwPinMode(SquareWave1HZ);
-  attachInterrupt(0, ping, RISING);
-Serial.println("1 Hz timer enabled");
+//   // 1 Hz timer
+//   rtc.writeSqwPinMode(SquareWave1HZ);
+//   attachInterrupt(0, ping, RISING);
+// Serial.println("1 Hz timer enabled");
 
 }
 
 void loop() {
   lcd.setCursor(0, 0);
+  lcd.print("started");
 
 
   // switch (mainState) {
