@@ -80,8 +80,6 @@ Serial.println("led inited");
     lcd.print("EEPROM data empty");
     while (digitalRead(BUTTON_PIN));
   } else {
-    // lcd.setCursor(0, 1);
-    // lcd.print("loaded");
     EEPROM.get(EEPROM_ADDR, timeStruct);
     lcd.print("EEPROM data restored");
   }
