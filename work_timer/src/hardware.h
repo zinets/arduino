@@ -14,6 +14,9 @@
     #define EEPROM_ADDR   0
     // one wire sensor
     #define ONE_WIRE_BUS 5
+    // lcd pins
+    // rs, en, d0, d1, d2, d3
+    #define LCD_PINS 12, 11, 9, 8, 7, 6
 #endif
 
 // esp connection
@@ -28,6 +31,13 @@
     #define EEPROM_ADDR   0
     // one wire sensor
     #define ONE_WIRE_BUS 5
+    // lcd pins
+    //Define 74HC595 Connections
+    const int Clock = D5;
+    const int Data = D6;
+    const int Latch = D7;
+
+    #define LCD_PINS D5, D6, D7
 #endif
 
 #endif

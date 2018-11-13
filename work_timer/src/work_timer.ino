@@ -1,5 +1,7 @@
 #include <Arduino.h>
 
+#include <LiquidCrystal.h>
+
 #include <Wire.h>
 #include <Bounce2.h>
 #include <EEPROM.h>
@@ -12,48 +14,38 @@
 #include "consts.h"
 #include "hardware.h"
 
+// LCD SCREEN
+LiquidCrystal lcd(LCD_PINS);
+volatile LedState ledState = ledStateReady;
+char buf[16];
+
+// RGB LED
 CRGB leds[NUM_LEDS];
 
+// realtime backup clock
+RTC_DS1307 rtc;
 
-volatile LedState ledState = ledStateReady;
-
-
-#ifdef TARGET_AVR
-#include <LiquidCrystal.h>
-rs, en, d0, d1, d2, d3
-LiquidCrystal lcd(12, 11, 9, 8, 7, 6);
-#endif
-
-#ifdef TARGET_ESP8266
-#include "LiquidCrystal.h"
-//Define 74HC595 Connections
-const int Clock = D5;
-const int Data = D6;
-const int Latch = D7;
-
-LiquidCrystal lcd(D5, D6, D7);
-#endif
-
-// RTC_DS1307 rtc;
-char buf[16];
+// arrive button
 Bounce bouncer = Bounce();
 
+// state machine
 volatile MainState mainState = stateInactive;
-
 volatile DisplayState displayState = stateRemainTime;
 int displayStateCounter = 0;
- 
+
 struct TimeObject timeStruct;
 
-// OneWire oneWire(ONE_WIRE_BUS);
-// DallasTemperature sensors(&oneWire);
-// DeviceAddress insideThermometer;
-// bool oneWireInited = false;
-// double currentTemp = 0;
+// internal thermometer
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature sensors(&oneWire);
+DeviceAddress insideThermometer;
+bool oneWireInited = false;
+double currentTemp = 0;
 
 void setup() {
   Serial.begin(9600);
 
+  // lcd initialization
   lcd.begin(16, 2);
   lcd.createChar(0, divider);
   lcd.createChar(1, arrived);
@@ -69,63 +61,80 @@ void setup() {
   #define DINNER_SYMBOL   byte(4)
   #define TEMP_C_SYMBOL   byte(5)
 
-  Serial.print("Locating devices...");
+Serial.println("lcd inited");
 
-  // sensors.begin();
-  // Serial.print("Found ");
-  // Serial.print(sensors.getDeviceCount(), DEC);
-  // Serial.println(" devices.");
+  // RGB-led initialization
+  FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
+  CRGB color = ColorFromPalette(WorkColors_p, 0);
+  leds[0] = CRGB::Orange; //color;
+  FastLED.show();
+Serial.println("led inited");
 
-  // Serial.print("Parasite power is: ");
-  // if (sensors.isParasitePowerMode())
-  //   Serial.println("ON");
-  // else
-  //   Serial.println("OFF");
 
-  // if (!sensors.getAddress(insideThermometer, 0)) {
-  //   Serial.println("Unable to find address for Device 0");
-  // } else {
-  //   oneWireInited = true;
-  //   Serial.print("Device 0 Address: ");
-  //   printAddress(insideThermometer);
-  //   Serial.println();
-  // }
-  // currentTemp = updateTemperature();
-
-  // Wire.begin();
-  // rtc.begin();
-  // if (!rtc.isrunning()) {
-  //   Serial.println("RTC is NOT running!");
-  //   rtc.adjust(DateTime(__DATE__, __TIME__));
-  // }
-  // rtc.writeSqwPinMode(SquareWave1HZ);
-
-  // // led
-  // FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
-
-  
-
-  attachInterrupt(0, ping, RISING);
-
+  // button initialization
   pinMode(BUTTON_PIN, INPUT);
-
+  // eeprom
   if (digitalRead(BUTTON_PIN)) {
     timeStruct.timerStarted = false;
     lcd.setCursor(0, 0);
-    lcd.print("Cleared!");
+    lcd.print("EEPROM data empty");
     while (digitalRead(BUTTON_PIN));
   } else {
-    lcd.setCursor(0, 1);
-    lcd.print("loaded");
+    // lcd.setCursor(0, 1);
+    // lcd.print("loaded");
     EEPROM.get(EEPROM_ADDR, timeStruct);
+    lcd.print("EEPROM data restored");
   }
+Serial.println("backup data ready");
   bouncer.attach(BUTTON_PIN);
   bouncer.interval(5);
+Serial.println("button inited");
+
+  // 1-wire initialization
+  Serial.print("Locating devices...");
+
+  sensors.begin();
+  Serial.print("Found ");
+  Serial.print(sensors.getDeviceCount(), DEC);
+  Serial.println(" devices.");
+
+  Serial.print("Parasite power is: ");
+  if (sensors.isParasitePowerMode())
+    Serial.println("ON");
+  else
+    Serial.println("OFF");
+
+  if (!sensors.getAddress(insideThermometer, 0)) {
+    Serial.println("Unable to find address for Device 0");
+  } else {
+    oneWireInited = true;
+    Serial.print("Device 0 Address: ");
+    printAddress(insideThermometer);
+    Serial.println();
+  }
+Serial.println("1-wire inited");
+  currentTemp = updateTemperature();
+Serial.print("int. temp: ");
+Serial.println(currentTemp, 2);
+
+  Wire.begin();
+  rtc.begin();
+  if (!rtc.isrunning()) {
+    Serial.println("RTC is NOT running!");
+    rtc.adjust(DateTime(__DATE__, __TIME__));
+  }
+Serial.println("RTC inited")  ;
+
+  // 1 Hz timer
+  rtc.writeSqwPinMode(SquareWave1HZ);
+  attachInterrupt(0, ping, RISING);
+Serial.println("1 Hz timer enabled");
+
 }
 
 void loop() {
   lcd.setCursor(0, 0);
-  lcd.print("test");
+
 
   // switch (mainState) {
   //   case stateTimeUpdated: {
@@ -227,6 +236,7 @@ void loop() {
   // updateColor();
 }
 
+// обработчик 1 Гц прерывания от rtc
 void ping() {
   mainState = stateTimeUpdated;
 
@@ -266,23 +276,23 @@ void ping() {
 //   }
 // }
 
-// void printAddress(DeviceAddress deviceAddress) {
-//   for (uint8_t i = 0; i < 8; i++) {
-//     if (deviceAddress[i] < 16) Serial.print("0");
-//     Serial.print(deviceAddress[i], HEX);
-//   }
-// }
+void printAddress(DeviceAddress deviceAddress) {
+  for (uint8_t i = 0; i < 8; i++) {
+    if (deviceAddress[i] < 16) Serial.print("0");
+    Serial.print(deviceAddress[i], HEX);
+  }
+}
 
-// float updateTemperature() {
-//   float tempC = 0;
-//   if (oneWireInited) {
-//     // Serial.print("Requesting temperatures...");
-//     sensors.requestTemperatures(); // Send the command to get temperatures
-//     // Serial.println("DONE");
+float updateTemperature() {
+  float tempC = 0;
+  if (oneWireInited) {
+    // Serial.print("Requesting temperatures...");
+    sensors.requestTemperatures(); // Send the command to get temperatures
+    // Serial.println("DONE");
 
-//     tempC = sensors.getTempC(insideThermometer);
-//     // Serial.print("Temp C: ");
-//     // Serial.print(tempC);
-//   }
-//   return tempC;
-// }
+    tempC = sensors.getTempC(insideThermometer);
+    // Serial.print("Temp C: ");
+    // Serial.print(tempC);
+  }
+  return tempC;
+}
