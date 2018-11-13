@@ -20,7 +20,7 @@
 #ifdef TARGET_ESP8266
 
     // button
-    #define BUTTON_PIN    D1
+    #define BUTTON_PIN    D2
     // leds
     #define NUM_LEDS 1
     #define DATA_PIN 4
