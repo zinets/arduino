@@ -1,6 +1,9 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#include <LiquidCrystal.h>
+#include "FastLED.h"
+
 // LCD
 enum LedState {
   ledStateReady,
@@ -8,9 +11,7 @@ enum LedState {
   ledStateDinner,
 };
 
-
-
-
+// LED
 const TProgmemRGBPalette16 WorkColors_p FL_PROGMEM = {
     CRGB::Orange,
     CRGB::Maroon,
