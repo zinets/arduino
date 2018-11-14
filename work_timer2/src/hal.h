@@ -22,6 +22,10 @@
     const int Latch = D7;
 
     #define LCD_PINS D5, D6, D7
+    // rtc
+    #define RTC_SDA     D2
+    #define RTC_SCL     D1
+    #define RTC_SQUARE_PIN  D3
 #endif
 
 

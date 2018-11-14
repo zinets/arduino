@@ -19,6 +19,7 @@ Bounce debouncer = Bounce();
 
 // realtime backup clock
 RTC_DS1307 rtc;
+void ping();
 
 void setup() {
   Serial.begin(9600);
@@ -53,18 +54,19 @@ Serial.println("led inited");
 Serial.println("button ready");
 
   // rtc
-//   Wire.begin();
-//   rtc.begin();
-//   if (!rtc.isrunning()) {
-//     Serial.println("RTC is NOT running!");
-//     rtc.adjust(DateTime(__DATE__, __TIME__));
-//   }
-// Serial.println("RTC inited")  ;
+  Wire.begin();
+  rtc.begin();
+  if (!rtc.isrunning()) {
+    Serial.println("RTC is NOT running!");
+    rtc.adjust(DateTime(__DATE__, __TIME__));
+  }
+Serial.println("RTC inited")  ;
 
-//   // 1 Hz timer
-//   rtc.writeSqwPinMode(SquareWave1HZ);
-//   attachInterrupt(0, ping, RISING);
-// Serial.println("1 Hz timer enabled");
+  // 1 Hz timer
+  rtc.writeSqwPinMode(SquareWave1HZ);
+  pinMode(RTC_SQUARE_PIN, INPUT);
+  attachInterrupt(digitalPinToInterrupt(RTC_SQUARE_PIN), ping, RISING);
+Serial.println("1 Hz timer enabled");
 }
 
 bool state = false;
@@ -85,5 +87,21 @@ void loop() {
     leds[0] = CRGB::Magenta;
   }
   FastLED.show();
-  
+
+  DateTime now = rtc.now();
+  // print date
+  int sec = now.second();
+  // print current time
+  bool dotsOn = sec % 2 == 0;
+  byte dividerSym = dotsOn ? ':' : ' ';
+  sprintf(buf, "%02d:%02d:%02d", now.hour(), now.minute(), now.second());
+
+  lcd.setCursor(0, 1);
+  lcd.print(buf);
+}
+
+// обработчик 1 Гц прерывания от rtc
+void ping() {
+  Serial.print("!");
+  state = !state;
 }
