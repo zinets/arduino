@@ -5,7 +5,7 @@
 #ifdef TARGET_ESP8266
 
     // button
-    #define BUTTON_PIN    D2
+    #define BUTTON_PIN    D8
     // leds
     #define LED_TYPE      WS2812
     #define COLOR_ORDER   GRB

@@ -1,6 +1,8 @@
 #include "hal.h"
 #include "types.h"
 
+#include <Bounce2.h>  
+
 // LCD SCREEN
 LiquidCrystal lcd(LCD_PINS);
 volatile LedState ledState = ledStateReady;
@@ -8,6 +10,9 @@ char buf[16];
 
 // RGB LED
 CRGB leds[NUM_LEDS];
+
+// start button
+Bounce debouncer = Bounce(); 
 
 void setup() {
   Serial.begin(9600);
@@ -35,16 +40,31 @@ Serial.println("lcd inited");
     .setCorrection(TypicalLEDStrip);
 Serial.println("led inited");
 
+  // start button
+  pinMode(BUTTON_PIN, INPUT);
+  debouncer.attach(BUTTON_PIN);
+  debouncer.interval(10); 
+Serial.println("button ready");
+
 }
+
+bool state = false;
 
 void loop() {
   lcd.setCursor(0, 0);
   lcd.print("started");
 
-  leds[0] = CRGB::Orange; //color;
+
+  debouncer.update();    
+  if (debouncer.rose()) {
+    state =!state;
+  }
+
+  if (!state) {
+    leds[0] = CRGB::Green; //color;
+  } else {
+    leds[0] = CRGB::Magenta;
+  }
   FastLED.show();
-  delay(500);
-  leds[0] = CRGB::Black;
-  FastLED.show();
-  delay(500);
+  
 }
