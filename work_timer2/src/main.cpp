@@ -3,6 +3,9 @@
 
 #include <Bounce2.h>  
 
+#include <Wire.h>
+#include "RTClib.h"
+
 // LCD SCREEN
 LiquidCrystal lcd(LCD_PINS);
 volatile LedState ledState = ledStateReady;
@@ -13,6 +16,9 @@ CRGB leds[NUM_LEDS];
 
 // start button
 Bounce debouncer = Bounce(); 
+
+// realtime backup clock
+RTC_DS1307 rtc;
 
 void setup() {
   Serial.begin(9600);
@@ -46,6 +52,19 @@ Serial.println("led inited");
   debouncer.interval(10); 
 Serial.println("button ready");
 
+  // rtc
+//   Wire.begin();
+//   rtc.begin();
+//   if (!rtc.isrunning()) {
+//     Serial.println("RTC is NOT running!");
+//     rtc.adjust(DateTime(__DATE__, __TIME__));
+//   }
+// Serial.println("RTC inited")  ;
+
+//   // 1 Hz timer
+//   rtc.writeSqwPinMode(SquareWave1HZ);
+//   attachInterrupt(0, ping, RISING);
+// Serial.println("1 Hz timer enabled");
 }
 
 bool state = false;
@@ -57,7 +76,7 @@ void loop() {
 
   debouncer.update();    
   if (debouncer.rose()) {
-    state =!state;
+    state = !state;
   }
 
   if (!state) {
