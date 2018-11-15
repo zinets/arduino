@@ -1,7 +1,7 @@
 #include "hal.h"
 #include "types.h"
 
-#include <Bounce2.h>  
+#include <Bounce2.h>
 
 #include <Wire.h>
 #include "RTClib.h"
@@ -15,7 +15,7 @@ char buf[16];
 CRGB leds[NUM_LEDS];
 
 // start button
-Bounce debouncer = Bounce(); 
+Bounce debouncer = Bounce();
 
 // realtime backup clock
 RTC_DS1307 rtc;
@@ -45,12 +45,14 @@ Serial.println("lcd inited");
   // RGB-led initialization
   FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS)
     .setCorrection(TypicalLEDStrip);
+ leds[0] = CRGB::Black;
+ FastLED.show();
 Serial.println("led inited");
 
   // start button
   pinMode(BUTTON_PIN, INPUT);
   debouncer.attach(BUTTON_PIN);
-  debouncer.interval(10); 
+  debouncer.interval(10);
 Serial.println("button ready");
 
   // rtc
@@ -76,17 +78,17 @@ void loop() {
   lcd.print("started");
 
 
-  debouncer.update();    
+  debouncer.update();
   if (debouncer.rose()) {
     state = !state;
   }
 
-  if (!state) {
-    leds[0] = CRGB::Green; //color;
-  } else {
-    leds[0] = CRGB::Magenta;
-  }
-  FastLED.show();
+  // if (!state) {
+  //   leds[0] = CRGB::Green; //color;
+  // } else {
+  //   leds[0] = CRGB::Magenta;
+  // }
+  // FastLED.show();
 
   DateTime now = rtc.now();
   // print date
