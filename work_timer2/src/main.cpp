@@ -64,6 +64,8 @@ Serial.println("led inited");
   debouncer.interval(10);
 Serial.println("button ready");
 
+  // EEPROM
+  EEPROM.begin(sizeof(TimeObject));
   if (digitalRead(BUTTON_PIN)) {
     timeStruct.timerStarted = false;
     lcd.setCursor(0, 0);
@@ -141,6 +143,7 @@ void loop() {
           lcd.setCursor(9, 1);
           lcd.print("       ");
           EEPROM.put(EEPROM_ADDR, timeStruct);
+          EEPROM.commit();
         }
       }
       if (dinnerTime) {
@@ -162,6 +165,7 @@ void loop() {
           timeStruct.arriveTime = rtc.now();
           timeStruct.endTime = timeStruct.arriveTime + TimeSpan(9 * 60 * 60 + 59);
           EEPROM.put(EEPROM_ADDR, timeStruct);
+          EEPROM.commit();
         }
       }
 

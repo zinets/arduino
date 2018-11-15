@@ -35,20 +35,20 @@ const TProgmemRGBPalette16 WorkColors_p FL_PROGMEM = {
     CRGB::Maroon,
     CRGB::Red,
 
-    CRGB::DarkRed,
-    CRGB::Maroon,
-    CRGB::DarkRed,
-    CRGB::Maroon,
-
-    CRGB::DarkRed,
-    CRGB::DarkRed,
     CRGB::Red,
     CRGB::Orange,
+    CRGB::Maroon,
+    CRGB::DarkRed,
 
-    CRGB::White,
-    CRGB::Orange,
     CRGB::Red,
-    CRGB::DarkRed
+    CRGB::Orange,
+    CRGB::Maroon,
+    CRGB::Red,
+
+    CRGB::Red,
+    CRGB::Orange,
+    CRGB::Maroon,
+    CRGB::DarkRed,
 };
 
 const TProgmemRGBPalette16 ReadyColors_p FL_PROGMEM = {
