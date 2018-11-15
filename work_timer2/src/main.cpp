@@ -2,9 +2,9 @@
 #include "types.h"
 
 #include <Bounce2.h>
-
+#include <EEPROM.h>
 #include <Wire.h>
-#include "RTClib.h"
+
 
 // LCD SCREEN
 LiquidCrystal lcd(LCD_PINS);
@@ -20,6 +20,10 @@ Bounce debouncer = Bounce();
 // realtime backup clock
 RTC_DS1307 rtc;
 void ping();
+
+struct TimeObject timeStruct;
+volatile MainState mainState = stateInactive;
+volatile DisplayState displayState = stateRemainTime;
 
 void setup() {
   Serial.begin(9600);
@@ -55,6 +59,16 @@ Serial.println("led inited");
   debouncer.interval(10);
 Serial.println("button ready");
 
+  if (digitalRead(BUTTON_PIN)) {
+    timeStruct.timerStarted = false;
+    lcd.setCursor(0, 0);
+    lcd.print("Cleared!");
+    while (digitalRead(BUTTON_PIN));
+  } else {
+    EEPROM.get(EEPROM_ADDR, timeStruct);
+    lcd.print("Read.");
+  }
+
   // rtc
   Wire.begin();
   rtc.begin();
@@ -74,36 +88,102 @@ Serial.println("1 Hz timer enabled");
 bool state = false;
 
 void loop() {
-  lcd.setCursor(0, 0);
-  lcd.print("started");
+  switch (mainState) {
+    case stateTimeUpdated: {
+      DateTime now = rtc.now();
+      // print date
+      int sec = now.second();
+      sprintf(buf, "%02d.%02d   ", now.day(), now.month());//, now.year() - 2000); to clear ending "Clear-ed!"
+      lcd.setCursor(0, 0);
+      lcd.print(buf);
 
+      // print current time
+      bool dotsOn = sec % 2 == 0;
+      bool dinnerTime = now.hour() == 12 && now.minute() > 35 && now.minute() < 59;
+      byte dinnerSym = dinnerTime ? DINNER_SYMBOL : ' ';
+      byte dividerSym = dotsOn ? ':' : ' ';
+      sprintf(buf, "%02d%c%02d %c", now.hour(), dividerSym, now.minute(), dinnerSym);
 
-  debouncer.update();
-  if (debouncer.rose()) {
-    state = !state;
+      lcd.setCursor(0, 1);
+      lcd.print(buf);
+      if (timeStruct.timerStarted) {
+        TimeSpan remain = timeStruct.endTime - now;
+        if (remain.totalseconds() > 1) {
+          // print arrive time
+          lcd.setCursor(9, 0);
+          sprintf(buf, "%c %02d:%02d", ARRIVED_SYMBOL, timeStruct.arriveTime.hour(), timeStruct.arriveTime.minute());
+          lcd.print(buf);
+          // print remain time
+          lcd.setCursor(9, 1);
+          switch (displayState) {
+            case stateRemainTime:
+              if (dotsOn) {
+                sprintf(buf, "%c %02d %02d", EXIT_SYMBOL, remain.hours(), remain.minutes());
+              } else {
+                sprintf(buf, "%c %02d:%02d", EXIT_SYMBOL, remain.hours(), remain.minutes());
+              }
+              break;
+            case stateFinishTime:
+              sprintf(buf, "%c %02d:%02d", CLOCK_SYMBOL, timeStruct.endTime.hour(), timeStruct.endTime.minute());
+              break;
+          }
+          lcd.print(buf);
+        } else {
+          timeStruct.timerStarted = false;
+
+          lcd.setCursor(9, 0);
+          lcd.print("       ");
+          lcd.setCursor(9, 1);
+          lcd.print("       ");
+          EEPROM.put(EEPROM_ADDR, timeStruct);
+        }
+      }
+      if (dinnerTime) {
+        ledState = ledStateDinner;
+      } else if (timeStruct.timerStarted) {
+        ledState = ledStateWork;
+      } else {
+        ledState = ledStateReady;
+      }
+
+      mainState = stateInactive;
+    } break;
+    case stateInactive:
+    default:
+      // таймер не запущен и нажата кнопка - запуск таймера
+      if (!timeStruct.timerStarted && debouncer.update()) {
+        if (debouncer.rose()) {
+          timeStruct.timerStarted = true;
+          timeStruct.arriveTime = rtc.now();
+          timeStruct.endTime = timeStruct.arriveTime + TimeSpan(9 * 60 * 60 + 59);
+          EEPROM.put(EEPROM_ADDR, timeStruct);
+        }
+      }
+      // // таймер запущен и нажата кнопка - посылка в порт сигнала
+      // else if (timeStruct.timerStarted && bouncer.update()) {
+      //   if (bouncer.fell()) {
+      //     Serial.println("screenOff");
+      //   }
+      // }
+      break;
   }
-
-  // if (!state) {
-  //   leds[0] = CRGB::Green; //color;
-  // } else {
-  //   leds[0] = CRGB::Magenta;
-  // }
-  // FastLED.show();
-
-  DateTime now = rtc.now();
-  // print date
-  int sec = now.second();
-  // print current time
-  bool dotsOn = sec % 2 == 0;
-  byte dividerSym = dotsOn ? ':' : ' ';
-  sprintf(buf, "%02d:%02d:%02d", now.hour(), now.minute(), now.second());
-
-  lcd.setCursor(0, 1);
-  lcd.print(buf);
 }
 
 // обработчик 1 Гц прерывания от rtc
 void ping() {
-  Serial.print("!");
-  state = !state;
+  mainState = stateTimeUpdated;
+
+  // if (displayStateCounter++ % 5 == 0) {
+    // switch (displayState) {
+    //   case stateRemainTime:
+    //     displayState = stateFinishTime;
+    //     break;
+    //   case stateFinishTime:
+    //     displayState = stateShowTemp;
+    //     break;
+    //   case stateShowTemp:
+        displayState = stateRemainTime;
+    //     break;
+    // }
+  // }
 }

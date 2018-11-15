@@ -3,6 +3,7 @@
 
 #include <LiquidCrystal.h>
 #include "FastLED.h"
+#include "RTClib.h"
 
 // LCD
 enum LedState {
@@ -10,6 +11,22 @@ enum LedState {
   ledStateWork,
   ledStateDinner,
 };
+
+enum MainState {
+    stateTimeUpdated,
+    stateInactive,
+};
+
+enum DisplayState {
+  stateRemainTime, // оставшееся время в часах
+  stateFinishTime, // время ухода в ЧЧ:ММ
+};
+
+typedef struct TimeObject {
+  bool timerStarted;
+  DateTime arriveTime;
+  DateTime endTime;
+} TimeObject;
 
 // LED
 const TProgmemRGBPalette16 WorkColors_p FL_PROGMEM = {
