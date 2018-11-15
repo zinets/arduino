@@ -19,11 +19,16 @@ Bounce debouncer = Bounce();
 
 // realtime backup clock
 RTC_DS1307 rtc;
-void ping();
 
+// protos
+void ping();
+void updateColor();
+
+// vars
 struct TimeObject timeStruct;
 volatile MainState mainState = stateInactive;
 volatile DisplayState displayState = stateRemainTime;
+int displayStateCounter = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -159,31 +164,46 @@ void loop() {
           EEPROM.put(EEPROM_ADDR, timeStruct);
         }
       }
-      // // таймер запущен и нажата кнопка - посылка в порт сигнала
-      // else if (timeStruct.timerStarted && bouncer.update()) {
-      //   if (bouncer.fell()) {
-      //     Serial.println("screenOff");
-      //   }
-      // }
+
       break;
   }
+
+  updateColor();
 }
 
 // обработчик 1 Гц прерывания от rtc
 void ping() {
   mainState = stateTimeUpdated;
 
-  // if (displayStateCounter++ % 5 == 0) {
-    // switch (displayState) {
-    //   case stateRemainTime:
-    //     displayState = stateFinishTime;
-    //     break;
-    //   case stateFinishTime:
-    //     displayState = stateShowTemp;
-    //     break;
-    //   case stateShowTemp:
+  if (displayStateCounter++ % 5 == 0) {
+    switch (displayState) {
+      case stateRemainTime:
+        displayState = stateFinishTime;
+        break;
+      case stateFinishTime:
         displayState = stateRemainTime;
-    //     break;
-    // }
-  // }
+        break;
+    }
+  }
+}
+
+void updateColor() {
+  static uint8_t index = 0;
+
+  switch (ledState) {
+    case ledStateWork: {
+      CRGB color = ColorFromPalette(WorkColors_p, index);
+      leds[0] = color;
+    } break;
+    case ledStateReady:
+    default: {
+      CRGB color = ColorFromPalette(ReadyColors_p, index);
+      leds[0] = color;
+    } break;
+  }
+
+  EVERY_N_MILLISECONDS(40) {
+    index++;
+    FastLED.show();
+  }
 }

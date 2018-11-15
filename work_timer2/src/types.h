@@ -30,12 +30,15 @@ typedef struct TimeObject {
 
 // LED
 const TProgmemRGBPalette16 WorkColors_p FL_PROGMEM = {
+    CRGB::Red,
     CRGB::Orange,
     CRGB::Maroon,
+    CRGB::Red,
 
     CRGB::DarkRed,
     CRGB::Maroon,
     CRGB::DarkRed,
+    CRGB::Maroon,
 
     CRGB::DarkRed,
     CRGB::DarkRed,
