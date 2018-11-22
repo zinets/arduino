@@ -31,6 +31,7 @@ volatile DisplayState displayState = stateRemainTime;
 int displayStateCounter = 0;
 
 void setup() {
+  delay(1000);
   Serial.begin(9600);
 
   // lcd initialization
