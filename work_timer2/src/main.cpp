@@ -79,11 +79,11 @@ Serial.println("wifi connected");
 
   int const timeZone = 2;
   NTP.begin (DEFAULT_NTP_SERVER, timeZone, true);
-  NTP.setInterval (10);
-  NTP.onNTPSyncEvent ([](NTPSyncEvent_t event) {
-      ntpEvent = event;
-      syncEventTriggered = true;
-  });
+  NTP.setInterval (1800);
+  // NTP.onNTPSyncEvent ([](NTPSyncEvent_t event) {
+  //     ntpEvent = event;
+  //     syncEventTriggered = true;
+  // });
 
 Serial.println("timeserver ready");
 Serial.println (NTP.getTimeDateString ());
