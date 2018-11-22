@@ -7,6 +7,7 @@
 
 #include <ESP8266WiFi.h>
 #include <WiFiManager.h>
+#include <NtpClientLib.h>
 
 // LCD SCREEN
 LiquidCrystal lcd(LCD_PINS);
@@ -32,6 +33,8 @@ struct TimeObject timeStruct;
 volatile MainState mainState = stateInactive;
 volatile DisplayState displayState = stateRemainTime;
 int displayStateCounter = 0;
+boolean syncEventTriggered = false;
+NTPSyncEvent_t ntpEvent;
 
 void setup() {
   delay(1000);
@@ -74,6 +77,17 @@ Serial.println("led inited");
   }
 Serial.println("wifi connected");
 
+  int const timeZone = 2;
+  NTP.begin (DEFAULT_NTP_SERVER, timeZone, true);
+  NTP.setInterval (10);
+  NTP.onNTPSyncEvent ([](NTPSyncEvent_t event) {
+      ntpEvent = event;
+      syncEventTriggered = true;
+  });
+
+Serial.println("timeserver ready");
+Serial.println (NTP.getTimeDateString ());
+
   // start button
   pinMode(BUTTON_PIN, INPUT);
   debouncer.attach(BUTTON_PIN);
@@ -99,7 +113,10 @@ Serial.println("button ready");
     Serial.println("RTC is NOT running!");
     rtc.adjust(DateTime(__DATE__, __TIME__));
   }
-Serial.println("RTC inited")  ;
+
+  rtc.adjust(DateTime(NTP.getTime()));
+
+Serial.println("RTC inited & updated")  ;
 
   // 1 Hz timer
   rtc.writeSqwPinMode(SquareWave1HZ);
@@ -191,6 +208,23 @@ void loop() {
   }
 
   updateColor();
+
+  if (syncEventTriggered) {
+    syncEventTriggered = false;
+
+    switch (ntpEvent) {
+      case noResponse:
+      case invalidAddress:
+        Serial.println("Some errors occured while time updating");
+        break;
+      case timeSyncd:
+        Serial.println (NTP.getTimeDateString (NTP.getLastNTPSync ()));
+        break;
+      break;
+    }
+  }
+
+  // Serial.println (NTP.getTimeDateString ());
 }
 
 // обработчик 1 Гц прерывания от rtc
