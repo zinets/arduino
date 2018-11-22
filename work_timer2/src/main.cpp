@@ -5,6 +5,8 @@
 #include <EEPROM.h>
 #include <Wire.h>
 
+#include <ESP8266WiFi.h>
+#include <WiFiManager.h>
 
 // LCD SCREEN
 LiquidCrystal lcd(LCD_PINS);
@@ -23,6 +25,7 @@ RTC_DS1307 rtc;
 // protos
 void ping();
 void updateColor();
+void configModeCallback (WiFiManager *myWiFiManager);
 
 // vars
 struct TimeObject timeStruct;
@@ -59,6 +62,18 @@ Serial.println("lcd inited");
  FastLED.show();
 Serial.println("led inited");
 
+  WiFiManager wifiManager;
+  lcd.setCursor(0, 0);
+  lcd.print("WiFi connect...");
+  wifiManager.setBreakAfterConfig(true);
+  wifiManager.setAPCallback(configModeCallback);
+  if (!wifiManager.autoConnect()) {
+    delay(3000);
+    ESP.reset();
+    delay(5000);
+  }
+Serial.println("wifi connected");
+
   // start button
   pinMode(BUTTON_PIN, INPUT);
   debouncer.attach(BUTTON_PIN);
@@ -91,6 +106,8 @@ Serial.println("RTC inited")  ;
   pinMode(RTC_SQUARE_PIN, INPUT);
   attachInterrupt(digitalPinToInterrupt(RTC_SQUARE_PIN), ping, RISING);
 Serial.println("1 Hz timer enabled");
+
+  lcd.clear();
 }
 
 bool state = false;
@@ -211,4 +228,12 @@ void updateColor() {
     index++;
     FastLED.show();
   }
+}
+
+void configModeCallback (WiFiManager *myWiFiManager) {
+  Serial.println("failed to connect, we should reset as see if it connects");
+  lcd.setCursor(0, 0);
+  lcd.print("Needs wifi setup");
+  lcd.setCursor(0, 1);
+  lcd.print(myWiFiManager->getConfigPortalSSID());
 }
