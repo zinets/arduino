@@ -36,6 +36,10 @@ int displayStateCounter = 0;
 boolean syncEventTriggered = false;
 NTPSyncEvent_t ntpEvent;
 
+#define BLYNK_PRINT Serial    // Comment this out to disable prints and save space
+#include <BlynkSimpleEsp8266.h>
+char  blynkToken[33] = "48ed6d953c2e4a5f8ff06fe5f2a8b415";
+
 void setup() {
   delay(1000);
   Serial.begin(9600);
@@ -70,12 +74,20 @@ Serial.println("led inited");
   lcd.print("WiFi connect...");
   wifiManager.setBreakAfterConfig(true);
   wifiManager.setAPCallback(configModeCallback);
+
+  // WiFiManagerParameter custom_blynk_text("<br/>Blynk config. <br/>");
+  // wifiManager.addParameter(&custom_blynk_text);
+  // WiFiManagerParameter custom_blynk_token("blynk-token", "blynk token", blynkToken, 33);
+  // wifiManager.addParameter(&custom_blynk_token);
+
   if (!wifiManager.autoConnect()) {
     delay(3000);
     ESP.reset();
     delay(5000);
   }
 Serial.println("wifi connected");
+
+Blynk.config(blynkToken);
 
   int const timeZone = 2;
   NTP.begin (DEFAULT_NTP_SERVER, timeZone, true);
@@ -208,23 +220,7 @@ void loop() {
   }
 
   updateColor();
-
-  if (syncEventTriggered) {
-    syncEventTriggered = false;
-
-    switch (ntpEvent) {
-      case noResponse:
-      case invalidAddress:
-        Serial.println("Some errors occured while time updating");
-        break;
-      case timeSyncd:
-        Serial.println (NTP.getTimeDateString (NTP.getLastNTPSync ()));
-        break;
-      break;
-    }
-  }
-
-  // Serial.println (NTP.getTimeDateString ());
+  Blynk.run();
 }
 
 // обработчик 1 Гц прерывания от rtc
@@ -241,6 +237,10 @@ void ping() {
         break;
     }
   }
+
+  String arrived = String(timeStruct.arriveTime.hour()) + ":" + String(timeStruct.arriveTime.minute());
+  Blynk.virtualWrite(V0, arrived);
+  Blynk.virtualWrite(V1, String(timeStruct.endTime.hour()) + ":" + String(timeStruct.endTime.minute()));
 }
 
 void updateColor() {
