@@ -1,6 +1,7 @@
 #include <ESP8266WiFi.h>
 
-#include "Barometer.h"
+#include "barometer.h"
+#include "dallas_temp.h"
 
 // blynk
 #include <BlynkSimpleEsp8266.h>
@@ -9,6 +10,7 @@ char auth[] = "48ed6d953c2e4a5f8ff06fe5f2a8b415";
 char ssid[] = "YourNetworkName";
 char pass[] = "YourPassword";
 
+#define DALLAS_SENSOR_PIN 2
 
 /*
 
@@ -48,6 +50,19 @@ void loop() {
 
       Blynk.virtualWrite(1, f);
     }
+
+#ifdef DALLAS_SENSOR_PIN
+    DallasSensor ds(DALLAS_SENSOR_PIN);
+    if (ds.update()) {
+      float f = ds.getTemperature();
+      Serial.print("Temperature (1-wire) = ");
+      Serial.print(f);
+      Serial.println(" *C");
+
+      Blynk.virtualWrite(2, f);
+    }
+
+    #endif
 
     ESP.deepSleep(5 * 60 * 1000000);
 }
