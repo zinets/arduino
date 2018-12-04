@@ -1,18 +1,19 @@
 #include <Arduino.h>
+#include <ESP8266WiFi.h>
 
+// i2c
 #include <Wire.h>
 #include <Adafruit_Sensor.h>    //    id = 31
 #include <Adafruit_BMP280.h>    //    id = 528
 
 Adafruit_BMP280 bmp; // I2C
 
-#define USE_BLYNK
-#undef USE_WIFI_MANAGER
+// blynk
+#include <BlynkSimpleEsp8266.h>
 
-#ifdef USE_BLYNK
-#include  <BlynkSimpleEsp8266.h > //  id = 415
-#endif
-
+char auth[] = "48ed6d953c2e4a5f8ff06fe5f2a8b415";
+char ssid[] = "YourNetworkName";
+char pass[] = "YourPassword";
 
 
 /*
@@ -30,6 +31,8 @@ Adafruit_BMP280 bmp; // I2C
 */
 
 void setup() {
+  Serial.begin(9600);
+  Blynk.begin(auth, ssid, pass);
 
   if (!bmp.begin()) {
     Serial.println("Could not find a valid BMP280 sensor, check wiring!");
@@ -38,13 +41,19 @@ void setup() {
 }
 
 void loop() {
+    float f = bmp.readTemperature();
     Serial.print("Temperature = ");
-    Serial.print(bmp.readTemperature());
+    Serial.print(f);
     Serial.println(" *C");
 
+    Blynk.virtualWrite(0, f);
+
+    f = bmp.readPressure();
     Serial.print("Pressure = ");
-    Serial.print(bmp.readPressure());
+    Serial.print(f);
     Serial.println(" Pa");
 
-    delay(2000);
+    Blynk.virtualWrite(1, f);
+
+    ESP.deepSleep(5 * 60 * 1000000); 
 }
