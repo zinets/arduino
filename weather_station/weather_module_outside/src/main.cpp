@@ -7,10 +7,10 @@
 #include <BlynkSimpleEsp8266.h>
 
 char auth[] = "48ed6d953c2e4a5f8ff06fe5f2a8b415";
-char ssid[] = "YourNetworkName";
-char pass[] = "YourPassword";
+char ssid[] = "hamster-wifi2";
+char pass[] = "134679852";
 
-#define DALLAS_SENSOR_PIN 2
+#define DALLAS_SENSOR_PIN 0
 
 /*
 
@@ -44,7 +44,7 @@ void loop() {
       f = baro.getPressure();
       Serial.print("Pressure = ");
       Serial.print(f);
-      Serial.println(" Pa");
+      Serial.println(" mm");
 
       Blynk.virtualWrite(1, f);
     }
@@ -62,7 +62,12 @@ void loop() {
 
   #endif
     int sensorValue = analogRead(A0);
-    float voltage = sensorValue * (5.0 / 1023.0);
+    float voltage = sensorValue * (4.85 / 960.0);
+    Serial.println(sensorValue);
+    Serial.print("Voltage ");
+    Serial.println(voltage);
+    Blynk.virtualWrite(3, voltage);
 
-    ESP.deepSleep(5 * 60 * 1000000);
+    ESP.deepSleep(5 * /*60 * */1000000);
+    // BlynkDelay(5000);
 }

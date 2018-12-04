@@ -13,13 +13,13 @@ bool Barometer::update() {
   }
 
   temperature = bmp.readTemperature();
-  pressure = bmp.readTemperature();
+  pressure = bmp.readPressure();
 
   return true;
 }
 
 float Barometer::getPressure () {
-  return pressure * 0.75006;
+  return pressure * 0.75006 / 100;
 }
 
 float Barometer::getTemperature () {
