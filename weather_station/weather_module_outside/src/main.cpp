@@ -29,8 +29,6 @@ char pass[] = "YourPassword";
 void setup() {
   Serial.begin(9600);
   Blynk.begin(auth, ssid, pass);
-
-
 }
 
 void loop() {
@@ -62,7 +60,9 @@ void loop() {
       Blynk.virtualWrite(2, f);
     }
 
-    #endif
+  #endif
+    int sensorValue = analogRead(A0);
+    float voltage = sensorValue * (5.0 / 1023.0);
 
     ESP.deepSleep(5 * 60 * 1000000);
 }
