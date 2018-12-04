@@ -1,12 +1,6 @@
-#include <Arduino.h>
 #include <ESP8266WiFi.h>
 
-// i2c
-#include <Wire.h>
-#include <Adafruit_Sensor.h>    //    id = 31
-#include <Adafruit_BMP280.h>    //    id = 528
-
-Adafruit_BMP280 bmp; // I2C
+#include "Barometer.h"
 
 // blynk
 #include <BlynkSimpleEsp8266.h>
@@ -25,7 +19,7 @@ char pass[] = "YourPassword";
     ИЛИ
   - не париться от слова "вообще" и зашить параметры доступа намертво? или хотя бы для начала
 - добавить Blynk - отправку на сервер текущих значений
-
+- добавить чтение температуры из 1-wire
 
 
 */
@@ -34,26 +28,26 @@ void setup() {
   Serial.begin(9600);
   Blynk.begin(auth, ssid, pass);
 
-  if (!bmp.begin()) {
-    Serial.println("Could not find a valid BMP280 sensor, check wiring!");
-    while (1);
-  }
+
 }
 
 void loop() {
-    float f = bmp.readTemperature();
-    Serial.print("Temperature = ");
-    Serial.print(f);
-    Serial.println(" *C");
+    Barometer baro;
+    if (baro.update()) {
+      float f = baro.getTemperature();
+      Serial.print("Temperature = ");
+      Serial.print(f);
+      Serial.println(" *C");
 
-    Blynk.virtualWrite(0, f);
+      Blynk.virtualWrite(0, f);
 
-    f = bmp.readPressure();
-    Serial.print("Pressure = ");
-    Serial.print(f);
-    Serial.println(" Pa");
+      f = baro.getPressure();
+      Serial.print("Pressure = ");
+      Serial.print(f);
+      Serial.println(" Pa");
 
-    Blynk.virtualWrite(1, f);
+      Blynk.virtualWrite(1, f);
+    }
 
-    ESP.deepSleep(5 * 60 * 1000000); 
+    ESP.deepSleep(5 * 60 * 1000000);
 }
