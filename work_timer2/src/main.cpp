@@ -36,9 +36,16 @@ int displayStateCounter = 0;
 boolean syncEventTriggered = false;
 NTPSyncEvent_t ntpEvent;
 
+#define BLYNK_USE
+#ifdef BLYNK_USE
 #define BLYNK_PRINT Serial    // Comment this out to disable prints and save space
 #include <BlynkSimpleEsp8266.h>
 char  blynkToken[33] = "48ed6d953c2e4a5f8ff06fe5f2a8b415";
+BlynkTimer timer;
+#endif
+
+bool isClockRunning = false;
+time_t nowTime = 0;
 
 void setup() {
   delay(1000);
@@ -87,7 +94,9 @@ Serial.println("led inited");
   }
 Serial.println("wifi connected");
 
-Blynk.config(blynkToken);
+#ifdef BLYNK_USE
+  Blynk.config(blynkToken);
+#endif
 
   int const timeZone = 2;
   NTP.begin (DEFAULT_NTP_SERVER, timeZone, true);
@@ -98,8 +107,10 @@ Blynk.config(blynkToken);
   // });
 
 Serial.println("timeserver ready");
-Serial.println (NTP.getTimeDateString ());
-
+nowTime = NTP.getTime();
+Serial.print("#1 ");
+Serial.println(NTP.getTimeDateString(nowTime));
+DateTime now = DateTime(nowTime);
   // start button
   pinMode(BUTTON_PIN, INPUT);
   debouncer.attach(BUTTON_PIN);
@@ -120,23 +131,39 @@ Serial.println("button ready");
 
   // rtc
   Wire.begin();
-  rtc.begin();
-  if (!rtc.isrunning()) {
-    Serial.println("RTC is NOT running!");
-    rtc.adjust(DateTime(__DATE__, __TIME__));
+  if (!rtc.begin()) {
+    Serial.println("Couldn't find RTC");
+    while (1);
   }
 
-  rtc.adjust(DateTime(NTP.getTime()));
+  if (!rtc.isrunning()) {
+    Serial.println("RTC is NOT running!");
+    // rtc.adjust(DateTime(__DATE__, __TIME__));
+    timeStruct.timerStarted = false;
 
-Serial.println("RTC inited & updated")  ;
+    nowTime = NTP.getTime();
+    now = DateTime(nowTime);
+    Serial.print("#2 ");
+    Serial.println(NTP.getTimeDateString(nowTime));
+  }
+  rtc.adjust(now);
+
+  if (rtc.isrunning()) {
+    Serial.println("RTC inited & updated");
+    isClockRunning = true;
+    // Serial.println("#3 " + String() + ":" + String());
+  } else {
+    Serial.println("WTF??");
+  }
 
   // 1 Hz timer
-  rtc.writeSqwPinMode(SquareWave1HZ);
-  pinMode(RTC_SQUARE_PIN, INPUT);
-  attachInterrupt(digitalPinToInterrupt(RTC_SQUARE_PIN), ping, RISING);
-Serial.println("1 Hz timer enabled");
+  // rtc.writeSqwPinMode(SquareWave1HZ);
+//   pinMode(RTC_SQUARE_PIN, INPUT);
+//   attachInterrupt(digitalPinToInterrupt(RTC_SQUARE_PIN), ping, RISING);
+// Serial.println("1 Hz timer enabled");
 
   lcd.clear();
+  int timerID = timer.setInterval(1000L, ping);
 }
 
 bool state = false;
@@ -144,7 +171,12 @@ bool state = false;
 void loop() {
   switch (mainState) {
     case stateTimeUpdated: {
-      DateTime now = rtc.now();
+      DateTime now;
+      if (isClockRunning) {
+        now = rtc.now();
+      } else {
+        now = DateTime(nowTime);
+      }
       // print date
       int sec = now.second();
       sprintf(buf, "%02d.%02d   ", now.day(), now.month());//, now.year() - 2000); to clear ending "Clear-ed!"
@@ -220,12 +252,16 @@ void loop() {
   }
 
   updateColor();
+  #ifdef BLYNK_USE
   Blynk.run();
+  timer.run();
+  #endif
 }
 
 // обработчик 1 Гц прерывания от rtc
 void ping() {
   mainState = stateTimeUpdated;
+  nowTime++;
 
   if (displayStateCounter++ % 5 == 0) {
     switch (displayState) {
@@ -238,9 +274,13 @@ void ping() {
     }
   }
 
-  String arrived = String(timeStruct.arriveTime.hour()) + ":" + String(timeStruct.arriveTime.minute());
-  Blynk.virtualWrite(V0, arrived);
-  Blynk.virtualWrite(V1, String(timeStruct.endTime.hour()) + ":" + String(timeStruct.endTime.minute()));
+  Serial.println("!");
+
+#ifdef BLYNK_USE
+  // String arrived = String(timeStruct.arriveTime.hour()) + ":" + String(timeStruct.arriveTime.minute());
+  // Blynk.virtualWrite(V0, arrived);
+  // Blynk.virtualWrite(V1, String(timeStruct.endTime.hour()) + ":" + String(timeStruct.endTime.minute()));
+#endif
 }
 
 void updateColor() {
