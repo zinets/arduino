@@ -95,7 +95,7 @@ Serial.println("led inited");
 Serial.println("wifi connected");
 
 #ifdef BLYNK_USE
-  Blynk.config(blynkToken);
+  // Blynk.config(blynkToken);
 #endif
 
   int const timeZone = 2;
@@ -116,18 +116,6 @@ DateTime now = DateTime(nowTime);
   debouncer.attach(BUTTON_PIN);
   debouncer.interval(10);
 Serial.println("button ready");
-
-  // EEPROM
-  EEPROM.begin(sizeof(TimeObject));
-  if (digitalRead(BUTTON_PIN)) {
-    timeStruct.timerStarted = false;
-    lcd.setCursor(0, 0);
-    lcd.print("Cleared!");
-    while (digitalRead(BUTTON_PIN));
-  } else {
-    EEPROM.get(EEPROM_ADDR, timeStruct);
-    lcd.print("Read.");
-  }
 
   // rtc
   Wire.begin();
@@ -154,6 +142,30 @@ Serial.println("button ready");
     // Serial.println("#3 " + String() + ":" + String());
   } else {
     Serial.println("WTF??");
+  }
+
+  // EEPROM
+  EEPROM.begin(sizeof(TimeObject));
+  if (digitalRead(BUTTON_PIN)) {
+    timeStruct.timerStarted = false;
+    lcd.setCursor(0, 0);
+    lcd.print("Cleared!");
+    while (digitalRead(BUTTON_PIN));
+  } else {
+    Serial.println("reading");
+    if (timeStruct.timerStarted) {
+        Serial.println("    true");
+    } else {
+        Serial.println("    false");
+    }
+
+    EEPROM.get(EEPROM_ADDR, timeStruct);
+    Serial.println("readed");
+    if (timeStruct.timerStarted) {
+        Serial.println("    true");
+    } else {
+        Serial.println("    false");
+    }
   }
 
   // 1 Hz timer
@@ -241,9 +253,17 @@ void loop() {
       if (!timeStruct.timerStarted && debouncer.update()) {
         if (debouncer.rose()) {
           timeStruct.timerStarted = true;
-          timeStruct.arriveTime = rtc.now();
+          if (isClockRunning) {
+            timeStruct.arriveTime = rtc.now();
+          } else {
+            timeStruct.arriveTime = DateTime(nowTime);
+          }
           timeStruct.endTime = timeStruct.arriveTime + TimeSpan(9 * 60 * 60 + 59);
+          EEPROM.begin(512);
           EEPROM.put(EEPROM_ADDR, timeStruct);
+
+          Serial.println("Write to EEPROM");
+
           EEPROM.commit();
         }
       }
@@ -253,7 +273,7 @@ void loop() {
 
   updateColor();
   #ifdef BLYNK_USE
-  Blynk.run();
+  // Blynk.run();
   timer.run();
   #endif
 }
@@ -273,8 +293,6 @@ void ping() {
         break;
     }
   }
-
-  Serial.println("!");
 
 #ifdef BLYNK_USE
   // String arrived = String(timeStruct.arriveTime.hour()) + ":" + String(timeStruct.arriveTime.minute());

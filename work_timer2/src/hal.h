@@ -12,7 +12,7 @@
     #define NUM_LEDS        1
     #define DATA_PIN        D4
     // eeprom addr
-    #define EEPROM_ADDR     0
+    #define EEPROM_ADDR     10
     // one wire sensor
     #define ONE_WIRE_BUS    5
     // lcd pins
