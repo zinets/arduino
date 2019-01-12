@@ -17,12 +17,19 @@ char  blynkToken[33] = "48ed6d953c2e4a5f8ff06fe5f2a8b415";
 #define VIRTUAL_SENSOR_BALKONY_TEMPERATURE  V0
 #define VIRTUAL_SENSOR_BALKONY_PRESSURE     V1
 
+#define DEBUG
+#define DEEP_SLEEP
+#define DEEP_SLEEP_TIMEOUT 15
+
 void setup() {
+  #ifdef DEBUG
   Serial.begin(9600);
-  Serial.println(F("BMP280 test"));
-  
+  #endif
+    
   if (!bme.begin()) {  
+    #ifdef DEBUG
     Serial.println("Could not find a valid BMP280 sensor, check wiring!");
+    #endif
     while (1);
   }
 
@@ -46,26 +53,29 @@ void setup() {
 }
 
 void loop() {
-  Serial.print("Temperature = ");
-    float temp = bme.readTemperature();
-    Serial.print(temp);
-    Serial.println(" *C");
-    
-    Serial.print("Pressure = ");
-    float pressure = bme.readPressure();
-    Serial.print(pressure);
-    Serial.println(" Pa");
+  float temp = bme.readTemperature();
+  float pressure = bme.readPressure();
+  
+  #ifdef DEBUG
+  Serial.print("Temperature = ");    
+  Serial.print(temp);
+  Serial.println(" *C");
+  
+  Serial.print("Pressure = ");
+  Serial.print(pressure);
+  Serial.println(" Pa");
 
-    Serial.print("Approx altitude = ");
-    Serial.print(bme.readAltitude(1013.25)); // this should be adjusted to your local forcase
-    Serial.println(" m");
-    
-    Serial.println();
+  Serial.println();
+  #endif
 
-    Blynk.virtualWrite(V0, VIRTUAL_SENSOR_BALKONY_TEMPERATURE);
-    Blynk.virtualWrite(V1, VIRTUAL_SENSOR_BALKONY_PRESSURE);
-    Blynk.run();
+  Blynk.virtualWrite(V0, VIRTUAL_SENSOR_BALKONY_TEMPERATURE);
+  Blynk.virtualWrite(V1, VIRTUAL_SENSOR_BALKONY_PRESSURE);
+  Blynk.run();
 
-    delay(5 * 1000);
+  #ifdef DEEP_SLEEP
+  ESP.deepSleep(DEEP_SLEEP_TIMEOUT * 60 * 1000000);
+  #else
+  delay(5 * 1000);
+  #endif
 }
 
