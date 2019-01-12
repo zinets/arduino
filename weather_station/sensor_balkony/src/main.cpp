@@ -12,7 +12,7 @@ void configModeCallback (WiFiManager *myWiFiManager) {
 }
 
 #include <BlynkSimpleEsp8266.h>
-char  blynkToken[33] = "48ed6d953c2e4a5f8ff06fe5f2a8b415";
+char  blynkToken[33] = "ebd8b40ad2104b7cb5165ffc5cc66781";
 
 #define VIRTUAL_SENSOR_BALKONY_TEMPERATURE  V0
 #define VIRTUAL_SENSOR_BALKONY_PRESSURE     V1
@@ -49,12 +49,11 @@ void setup() {
   }
 
   Blynk.config(blynkToken);
-
 }
 
 void loop() {
   float temp = bme.readTemperature();
-  float pressure = bme.readPressure();
+  float pressure = bme.readPressure() / 133.322;
   
   #ifdef DEBUG
   Serial.print("Temperature = ");    
@@ -63,17 +62,30 @@ void loop() {
   
   Serial.print("Pressure = ");
   Serial.print(pressure);
-  Serial.println(" Pa");
+  Serial.println(" mm");
 
   Serial.println();
   #endif
 
-  Blynk.virtualWrite(V0, VIRTUAL_SENSOR_BALKONY_TEMPERATURE);
-  Blynk.virtualWrite(V1, VIRTUAL_SENSOR_BALKONY_PRESSURE);
+  while (!Blynk.connect()) {
+
+  }
+  #ifdef DEBUG
+  Serial.println("Connected");
+  #endif
+
+  Blynk.virtualWrite(VIRTUAL_SENSOR_BALKONY_TEMPERATURE, temp);
+  Blynk.virtualWrite(VIRTUAL_SENSOR_BALKONY_PRESSURE, pressure);
   Blynk.run();
 
+  delay(1000);
+
   #ifdef DEEP_SLEEP
-  ESP.deepSleep(DEEP_SLEEP_TIMEOUT * 60 * 1000000);
+  #ifdef DEBUG
+  Serial.println("Go to sleep..");
+  #endif
+  // ESP.deepSleep(DEEP_SLEEP_TIMEOUT * 60 * 1000000);
+  ESP.deepSleep(30  * 1000000);
   #else
   delay(5 * 1000);
   #endif
