@@ -15,6 +15,7 @@ char  blynkToken[33] = "ebd8b40ad2104b7cb5165ffc5cc66781";
 #define VIRTUAL_SENSOR_OUTDOOR_TEMPERATURE  V2
 #define VIRTUAL_SENSOR_OUTDOOR_PRESSURE     V3
 #define VIRTUAL_SENSOR_OUTDOOR_HUMIDITY     V4
+#define VIRTUAL_SENSOR_OUTDOOR_VOLTAGE      V5
 
 // sensor
 #define READ_HUMIDITY
@@ -28,7 +29,7 @@ Adafruit_BME280 bme;
 Adafruit_BMP280 bme;
 #endif
 
-#define DEBUG
+#undef DEBUG
 #define DEEP_SLEEP
 #define DEEP_SLEEP_TIMEOUT 15
 
@@ -36,7 +37,8 @@ void setup() {
   #ifdef DEBUG
   Serial.begin(9600);
   #endif
-    
+
+
   if (!bme.begin(0x76)) {  
     #ifdef DEEP_SLEEP
     #ifdef DEBUG
@@ -79,9 +81,11 @@ void setup() {
 }
 
 void loop() {
+
   float temp = bme.readTemperature();
   float pressure = bme.readPressure() / 133.322;
   float humidity = bme.readHumidity();
+  float v = analogRead(A0) * 0.00504;
   
   #ifdef DEBUG
   Serial.print("Temperature = ");    
@@ -96,6 +100,10 @@ void loop() {
   Serial.print(humidity);
   Serial.println(" %%");
 
+  Serial.print("Voltage = ");
+  Serial.print(v);
+  Serial.println(" V");
+
   Serial.println();
   #endif
 
@@ -109,6 +117,7 @@ void loop() {
   Blynk.virtualWrite(VIRTUAL_SENSOR_OUTDOOR_TEMPERATURE, temp);
   Blynk.virtualWrite(VIRTUAL_SENSOR_OUTDOOR_PRESSURE, pressure);
   Blynk.virtualWrite(VIRTUAL_SENSOR_OUTDOOR_HUMIDITY, humidity);
+  Blynk.virtualWrite(VIRTUAL_SENSOR_OUTDOOR_VOLTAGE, v);
 
   Blynk.run();
 
