@@ -9,11 +9,14 @@ void configModeCallback (WiFiManager *myWiFiManager) {
 
 // blynk
 #include <BlynkSimpleEsp8266.h>
+BlynkTimer timer;
 
 // outdoor data
 float outdoor_temperature = 0;
 float outdoor_pressure = 0;
 float outdoor_humidity = 0;
+// indoor data
+float indoor_temperature = 0;
 
 BLYNK_CONNECTED() {
   Blynk.syncVirtual(VIRTUAL_SENSOR_OUTDOOR_HUMIDITY, 
@@ -63,12 +66,30 @@ VCC - 5v
 #define TFT_DC     D3
 
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
-void testdrawtext(char *text, uint16_t color, int yPos) {
-  tft.setCursor(0, yPos);
-  tft.setTextColor(color);
-  tft.setTextWrap(true);
+// void testdrawtext(char *text, uint16_t color, int yPos) {
+//   tft.setCursor(0, yPos);
+//   tft.setTextColor(color);
+//   tft.setTextWrap(true);
+//   tft.setTextSize(2);
+//   tft.print(text);
+// }
+
+
+void myTimerEvent() {
+  tft.setCursor(0, 0);
+  tft.setTextColor(ST7735_GREEN);
+  tft.setTextWrap(false);
   tft.setTextSize(2);
-  tft.print(text);
+  tft.print("temperature");
+
+  tft.setTextColor(ST7735_BLACK);
+  tft.setCursor(0, 16);
+  tft.print(indoor_temperature);
+
+  tft.setTextColor(ST7735_YELLOW);
+  tft.setCursor(0, 16);
+  indoor_temperature = bme.readTemperature();
+  tft.print(indoor_temperature);
 }
 
 void setup() {
@@ -77,13 +98,8 @@ void setup() {
   tft.initR(INITR_BLACKTAB);
   tft.fillScreen(ST77XX_BLACK);
 
-  testdrawtext("Lorem", ST77XX_WHITE, 0);
-  testdrawtext("123", ST77XX_RED, 16);
-  testdrawtext("asЙцУ00", ST77XX_YELLOW, 32);
-
   if (!bme.begin()) {
     Serial.println("BMP280 not found!");
-    testdrawtext("BMP280!!!", ST7735_MAGENTA, 40);
   }
 
   // wifi connection
@@ -102,14 +118,15 @@ void setup() {
   }
 
   Blynk.config(blynkToken);
+  timer.setInterval(1000L, myTimerEvent);
 }
 
 void loop() {
-  float intTemp = bme.readTemperature();
-  Serial.print("temperature:");
-  Serial.println(intTemp);
+  
+  
+ 
 
   Blynk.run(); 
-
+  timer.run();
   // TO DO: обновление через DEEP_SLEEP_TIMEOUT минут данных внешнего датчика
 }
