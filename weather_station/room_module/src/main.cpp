@@ -10,6 +10,11 @@ void configModeCallback (WiFiManager *myWiFiManager) {
 // blynk
 #include <BlynkSimpleEsp8266.h>
 
+// outdoor data
+float outdoor_temperature = 0;
+float outdoor_pressure = 0;
+float outdoor_humidity = 0;
+
 void setup() {
   Serial.begin(9600); 
 
@@ -32,24 +37,31 @@ void setup() {
 }
 
 BLYNK_CONNECTED() {
-  Blynk.syncVirtual(V2, V3, V4);
+  Blynk.syncVirtual(VIRTUAL_SENSOR_OUTDOOR_HUMIDITY, 
+    VIRTUAL_SENSOR_OUTDOOR_HUMIDITY, 
+    VIRTUAL_SENSOR_OUTDOOR_HUMIDITY);
 }
 
-BLYNK_WRITE(V2) {
+BLYNK_WRITE(VIRTUAL_SENSOR_OUTDOOR_TEMPERATURE) {
+  outdoor_temperature = param.asFloat();
   Serial.print("V2 ");
-  Serial.println(param.asFloat());
+  Serial.println(outdoor_temperature);  
 }
 
-BLYNK_WRITE(V3) {
+BLYNK_WRITE(VIRTUAL_SENSOR_OUTDOOR_PRESSURE) {
+  outdoor_pressure = param.asFloat();
   Serial.print("V3 ");
-  Serial.println(param.asFloat());
+  Serial.println(outdoor_pressure);
 }
 
-BLYNK_WRITE(V4) {
+BLYNK_WRITE(VIRTUAL_SENSOR_OUTDOOR_HUMIDITY) {
+  outdoor_humidity = param.asFloat();
   Serial.print("V4 ");
-  Serial.println(param.asFloat());
+  Serial.println(outdoor_humidity);
 }
 
 void loop() {
   Blynk.run(); 
+
+  // TO DO: обновление через DEEP_SLEEP_TIMEOUT минут данных внешнего датчика
 }

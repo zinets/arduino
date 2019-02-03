@@ -24,7 +24,6 @@ Adafruit_BMP280 bme;
 
 #undef DEBUG
 #define DEEP_SLEEP
-#define DEEP_SLEEP_TIMEOUT 15
 
 void setup() {
   #ifdef DEBUG
