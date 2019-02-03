@@ -32,7 +32,7 @@ void setup() {
   #endif
 
 
-  if (!bme.begin(0x76)) {  
+  if (!bme.begin(0x76)) {  // не дефолтный адрес!
     #ifdef DEEP_SLEEP
     #ifdef DEBUG
     Serial.println("Go to sleep because sensor hardware not found");
