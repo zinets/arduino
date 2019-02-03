@@ -19,8 +19,8 @@ float outdoor_humidity = 0;
 float indoor_temperature = 0;
 
 BLYNK_CONNECTED() {
-  Blynk.syncVirtual(VIRTUAL_SENSOR_OUTDOOR_HUMIDITY, 
-    VIRTUAL_SENSOR_OUTDOOR_HUMIDITY, 
+  Blynk.syncVirtual(VIRTUAL_SENSOR_OUTDOOR_TEMPERATURE, 
+    VIRTUAL_SENSOR_OUTDOOR_PRESSURE, 
     VIRTUAL_SENSOR_OUTDOOR_HUMIDITY);
 }
 
@@ -79,23 +79,40 @@ void myTimerEvent() {
   tft.setCursor(0, 0);
   tft.setTextColor(ST7735_GREEN);
   tft.setTextWrap(false);
-  tft.setTextSize(2);
-  tft.print("temperature");
+  tft.setTextSize(1);
+  tft.print("room temperature");
 
+  tft.setTextSize(2);
   tft.setTextColor(ST7735_BLACK);
-  tft.setCursor(0, 16);
+  tft.setCursor(0, 8);
   tft.print(indoor_temperature);
 
   tft.setTextColor(ST7735_YELLOW);
-  tft.setCursor(0, 16);
+  tft.setCursor(0, 8);
   indoor_temperature = bme.readTemperature();
   tft.print(indoor_temperature);
+
+
+  tft.setCursor(0, 24);
+  tft.setTextColor(ST7735_GREEN);
+  tft.setTextSize(1);
+  tft.print("outside temperature");
+
+  tft.setTextSize(2);
+  tft.setTextColor(ST7735_BLACK);
+  tft.setCursor(0, 32);
+  tft.print(outdoor_temperature);
+
+  tft.setTextColor(ST7735_YELLOW);
+  tft.setCursor(0, 32);
+  tft.print(outdoor_temperature);
 }
 
 void setup() {
   Serial.begin(9600); 
 
   tft.initR(INITR_BLACKTAB);
+  tft.setRotation(1);
   tft.fillScreen(ST77XX_BLACK);
 
   if (!bme.begin()) {
