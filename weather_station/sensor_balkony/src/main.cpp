@@ -5,17 +5,10 @@ void configModeCallback (WiFiManager *myWiFiManager) {
   Serial.println("Needs wifi setup");
 }
 
+#include "..\..\common.h"
+
 // blynk
 #include <BlynkSimpleEsp8266.h>
-char  blynkToken[33] = "ebd8b40ad2104b7cb5165ffc5cc66781";
-
-#define VIRTUAL_SENSOR_BALKONY_TEMPERATURE  V0
-#define VIRTUAL_SENSOR_BALKONY_PRESSURE     V1
-
-#define VIRTUAL_SENSOR_OUTDOOR_TEMPERATURE  V2
-#define VIRTUAL_SENSOR_OUTDOOR_PRESSURE     V3
-#define VIRTUAL_SENSOR_OUTDOOR_HUMIDITY     V4
-#define VIRTUAL_SENSOR_OUTDOOR_VOLTAGE      V5
 
 // sensor
 #define READ_HUMIDITY
