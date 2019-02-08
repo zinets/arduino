@@ -280,6 +280,7 @@ void loop() {
 
 // обработчик 1 Гц прерывания от rtc
 void ping() {
+  Serial.println("!"); 
   mainState = stateTimeUpdated;
   nowTime++;
 
