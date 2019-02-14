@@ -213,6 +213,7 @@ void loop() {
           lcd.print(buf);
           // print remain time
           lcd.setCursor(9, 1);
+
           switch (displayState) {
             case stateRemainTime:
               if (dotsOn) {
@@ -280,11 +281,11 @@ void loop() {
 
 // обработчик 1 Гц прерывания от rtc
 void ping() {
-  Serial.println("!"); 
+
   mainState = stateTimeUpdated;
   nowTime++;
 
-  if (displayStateCounter++ % 5 == 0) {
+  if (!(displayStateCounter++ % 5)) {
     switch (displayState) {
       case stateRemainTime:
         displayState = stateFinishTime;
@@ -295,11 +296,6 @@ void ping() {
     }
   }
 
-#ifdef BLYNK_USE
-  // String arrived = String(timeStruct.arriveTime.hour()) + ":" + String(timeStruct.arriveTime.minute());
-  // Blynk.virtualWrite(V0, arrived);
-  // Blynk.virtualWrite(V1, String(timeStruct.endTime.hour()) + ":" + String(timeStruct.endTime.minute()));
-#endif
 }
 
 void updateColor() {
