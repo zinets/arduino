@@ -2,7 +2,6 @@
 
 #include <Adafruit_GFX.h>    // Core graphics library
 #include <Adafruit_ST7735.h> // Hardware-specific library for ST7735
-#include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
 #include <SPI.h>
 
 #define TFT_CS         D1
@@ -214,7 +213,7 @@ void mediabuttons() {
   tft.fillTriangle(42, 20, 42, 60, 90, 40, ST77XX_GREEN);
 }
 
-
+BaseModule *testModule;
 
 void setup(void) {
   Serial.begin(112500);
@@ -223,23 +222,14 @@ void setup(void) {
   // Use this initializer if using a 1.8" TFT screen:
   tft.initR(INITR_BLACKTAB);      // Init ST7735S chip, black tab
 
-  // OR use this initializer (uncomment) if using a 1.44" TFT:
-  //tft.initR(INITR_144GREENTAB); // Init ST7735R chip, green tab
-
-  // OR use this initializer (uncomment) if using a 0.96" 160x80 TFT:
-  //tft.initR(INITR_MINI160x80);  // Init ST7735S mini display
-
-  // OR use this initializer (uncomment) if using a 1.3" or 1.54" 240x240 TFT:
-  //tft.init(240, 240);           // Init ST7789 240x240
-
-  // OR use this initializer (uncomment) if using a 2.0" 320x240 TFT:
-  //tft.init(240, 320);           // Init ST7789 320x240
-
-  // OR use this initializer (uncomment) if using a 1.14" 240x135 TFT:
-  //tft.init(135, 240);           // Init ST7789 240x135
-
   Serial.println(F("Initialized"));
 
+  testModule = new BaseModule(&tft, 32, 32);
+  testModule->testDraw();
+
+
+
+  return; 
   uint16_t time = millis();
   tft.fillScreen(ST77XX_BLACK);
   time = millis() - time;
@@ -293,8 +283,8 @@ void setup(void) {
 }
 
 void loop() {
-  tft.invertDisplay(true);
-  delay(500);
-  tft.invertDisplay(false);
-  delay(500);
+  // tft.invertDisplay(true);
+  // delay(500);
+  // tft.invertDisplay(false);
+  // delay(500);
 }
