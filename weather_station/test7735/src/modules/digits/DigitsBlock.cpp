@@ -20,4 +20,6 @@ void DigitsBlock::draw() {
     _tft->setCursor(x, y);
 
     _tft->print(s);
+
+    _tft->drawCircle(x + w + 2, y, 2, ST7735_WHITE);
 }
