@@ -8,8 +8,8 @@
 class DummyScreen: public BaseScreen {
     private:
         BaseModule *blocks[3];
-        DigitsBlock *dBlock;
-        DigitsBlock *dBlock1;
+        // DigitsBlock *dBlock;
+        // DigitsBlock *dBlock1;
     public:
         DummyScreen(Adafruit_ST7735 *tft): BaseScreen(tft) {
             configureBlocks(); // почему в родительском классе не вызывается этот метод, который я переопределил в этом наследнике??         
@@ -18,12 +18,12 @@ class DummyScreen: public BaseScreen {
         void update() override {
             _tft->fillScreen(backgroundColor);
 
-            for (int x = 0; x < 1; x++) {
+            for (int x = 0; x < 3; x++) {
                 BaseModule *block = blocks[x];
                 block->draw();
             }              
-            dBlock->draw();
-            dBlock1->draw();
+            // dBlock->draw();
+            // dBlock1->draw();
         }
 
         void configureBlocks() override;

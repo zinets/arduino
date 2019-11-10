@@ -34,4 +34,11 @@ class PercentBlock: public DigitsBlock {
         }
 };
 
+class TemperatureBlock: public DigitsBlock {
+    public:
+        TemperatureBlock(Adafruit_ST7735 *tft, int8 originX, int8 originY): DigitsBlock(tft, originX, originY) {
+            digitType = GRADUS;
+            fixedWidth = false;
+        }
+};
 #endif

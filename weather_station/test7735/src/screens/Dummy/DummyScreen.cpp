@@ -1,19 +1,16 @@
 #include "DummyScreen.h"
 
 void DummyScreen::configureBlocks() {
-    for (int x = 0; x < 1; x++) {
-        BaseModule *block = new BaseModule(_tft, 8 + 48 * x, 40);
-        block->isDelimiterVisible = true;
-        blocks[x] = block;
-    }
-    dBlock = new PercentBlock(_tft, 8 + 48 * 1, 40);   
-    // dBlock->fixedWidth = false;
-    // dBlock->digitType = PERCENT;
+    BaseModule *block = new BaseModule(_tft, 8 + 48 * 0, 40);
+    block->isDelimiterVisible = true;
+    blocks[0] = block;
+
+    PercentBlock *dBlock = new PercentBlock(_tft, 8 + 48 * 1, 40);   
+    blocks[1] = dBlock;
     dBlock->isDelimiterVisible = true;
     dBlock->setValue(-4);
     
-    dBlock1 = new DigitsBlock(_tft, 8 + 48 * 2, 40);   
-    dBlock1->fixedWidth = false;
-    dBlock1->digitType = GRADUS;
+    TemperatureBlock *dBlock1 = new TemperatureBlock(_tft, 8 + 48 * 2, 40);   
+    blocks[2] = dBlock1;
     dBlock1->setValue(-64);
 }
