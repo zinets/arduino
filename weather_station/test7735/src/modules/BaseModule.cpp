@@ -1,6 +1,7 @@
 #include "BaseModule.h"
 
 void BaseModule::draw() {
-    _tft->fillRect(originX, originY, 48, 48, ST77XX_BLUE);
-    _tft->drawRect(originX, originY, 48, 48, ST77XX_RED);
+    if (isDelimiterVisible) {
+        _tft->drawLine(originX + 48, originY, originX + 48, originY + 48, ST7735_WHITE);
+    }
 }

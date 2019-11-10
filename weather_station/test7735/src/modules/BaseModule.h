@@ -14,7 +14,9 @@ class BaseModule {
       this->originX = originX;
       this->originY = originY;
     }
-   
+
+    /// разделитель - вертикальная линия справа
+    bool isDelimiterVisible = false;   
     virtual void draw();
 };
 
