@@ -10,10 +10,12 @@ class DummyScreen: public BaseScreen {
 
     public:
         DummyScreen(Adafruit_ST7735 *tft): BaseScreen(tft) {
-            configureBlocks();
+            for (int x = 0; x < 3; x++) {
+                BaseModule *block = new BaseModule(_tft, 8 + 48 * x, 40);
+                blocks[x] = block;
+            }
         };
         void update();
-        void configureBlocks();
 };
 
 #endif

@@ -232,11 +232,8 @@ void setup(void) {
   // testModule = new BaseModule(&tft, 8+48, 40);
   // testModule->draw();
 
-Serial.println(F("111"));
   DummyScreen *screen = new DummyScreen(&tft);
-//   Serial.println(F("222"));
   screen->update();
-  Serial.println(F("333"));
 
   return; 
   uint16_t time = millis();

@@ -6,10 +6,11 @@
 class BaseScreen {
     protected:
     Adafruit_ST7735 *_tft;
-    virtual void configureBlocks();
-
+    
     public:
-    BaseScreen(Adafruit_ST7735 *tft);
+    BaseScreen(Adafruit_ST7735 *tft) {
+        _tft = tft;
+    }
     virtual void update();
 };
 
