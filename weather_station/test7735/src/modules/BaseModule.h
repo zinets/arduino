@@ -15,7 +15,7 @@ class BaseModule {
     this->originY = originY;
   }
    
-  void testDraw();
+  void draw();
 };
 
 #endif

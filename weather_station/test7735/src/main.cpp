@@ -23,6 +23,7 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 float p = 3.1415926;
 
 #include "modules/BaseModule.h"
+#include "screens/Dummy/DummyScreen.h"
 
 void testlines(uint16_t color) {
   tft.fillScreen(ST77XX_BLACK);
@@ -224,12 +225,18 @@ void setup(void) {
   tft.setRotation(1);
   Serial.println(F("Initialized"));
 
-  testModule = new BaseModule(&tft, 8, 40);
-  testModule->testDraw();
-  delete testModule;
+  // testModule = new BaseModule(&tft, 8, 40);
+  // testModule->draw();
+  // delete testModule;
 
-  testModule = new BaseModule(&tft, 8+48, 40);
-  testModule->testDraw();
+  // testModule = new BaseModule(&tft, 8+48, 40);
+  // testModule->draw();
+
+Serial.println(F("111"));
+  DummyScreen *screen = new DummyScreen(&tft);
+//   Serial.println(F("222"));
+  screen->update();
+  Serial.println(F("333"));
 
   return; 
   uint16_t time = millis();
