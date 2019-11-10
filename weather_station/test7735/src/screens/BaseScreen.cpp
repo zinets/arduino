@@ -3,3 +3,7 @@
 void BaseScreen::update() {
 
 }
+
+void BaseScreen::configureBlocks() {
+    
+}
