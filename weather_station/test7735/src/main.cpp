@@ -221,13 +221,15 @@ void setup(void) {
 
   // Use this initializer if using a 1.8" TFT screen:
   tft.initR(INITR_BLACKTAB);      // Init ST7735S chip, black tab
-
+  tft.setRotation(1);
   Serial.println(F("Initialized"));
 
-  testModule = new BaseModule(&tft, 32, 32);
+  testModule = new BaseModule(&tft, 8, 40);
   testModule->testDraw();
+  delete testModule;
 
-
+  testModule = new BaseModule(&tft, 8+48, 40);
+  testModule->testDraw();
 
   return; 
   uint16_t time = millis();
