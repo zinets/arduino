@@ -1,10 +1,6 @@
-// MultipleStripsInOneArray - see https://github.com/FastLED/FastLED/wiki/Multiple-Controller-Examples for more info on
-// using multiple controllers.  In this example, we're going to set up four NEOPIXEL strips on three
-// different pins, each strip will be referring to a different part of the single led array
-
 #include <FastLED.h>
 
-#define NUM_STRIPS 5
+#define NUM_STRIPS 6
 #define START_PIN 2
 #define NUM_LEDS_PER_STRIP 17
 #define NUM_LEDS NUM_LEDS_PER_STRIP * NUM_STRIPS
@@ -25,6 +21,7 @@ void setup() {
   FastLED.addLeds<NEOPIXEL, 4>(leds, 2 * NUM_LEDS_PER_STRIP, NUM_LEDS_PER_STRIP);
   FastLED.addLeds<NEOPIXEL, 5>(leds, 3 * NUM_LEDS_PER_STRIP, NUM_LEDS_PER_STRIP);
   FastLED.addLeds<NEOPIXEL, 6>(leds, 4 * NUM_LEDS_PER_STRIP, NUM_LEDS_PER_STRIP);
+  FastLED.addLeds<NEOPIXEL, 7>(leds, 5 * NUM_LEDS_PER_STRIP, NUM_LEDS_PER_STRIP);
 
   FastLED.setBrightness(100); // 0 - 255
 }
