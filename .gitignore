@@ -1,2 +1,5 @@
 xmas_lights_multisegment/.travis.yml
 xmas_lights_multisegment/.vscode/extensions.json
+work_timer2/.pio/build/project.checksum
+work_timer2/.vscode/c_cpp_properties.json
+work_timer2/.vscode/launch.json
