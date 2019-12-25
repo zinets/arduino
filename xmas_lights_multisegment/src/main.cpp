@@ -1,3 +1,12 @@
+// OTA support
+#ifdef TARGET_ESP8266
+#include <ESP8266WiFi.h>
+#include <ESP8266mDNS.h>
+#include <WiFiUdp.h>
+#include <ArduinoOTA.h>
+#endif
+
+#define FASTLED_ESP8266_D1_PIN_ORDER
 #include <FastLED.h>
 
 #define NUM_STRIPS 1
@@ -22,6 +31,26 @@ CRGB goldLeds[NUM_GOLD_LEDS];
 uint8_t goldHue = 0; 
 
 void setup() {
+
+  #ifdef TARGET_ESP8266
+  // TODO: WiFi-manager
+  const char* ssid = "Hamster-wifi";
+  const char* password = "134679852";
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+  while (WiFi.waitForConnectResult() != WL_CONNECTED) {
+    Serial.println("Connection Failed! Rebooting...");
+    delay(5000);
+    ESP.restart();
+  }
+  ArduinoOTA.setHostname("xtree");
+
+  ArduinoOTA.begin();
+  // Serial.println("Ready");
+  // Serial.print("IP address: ");
+  // Serial.println(WiFi.localIP());
+  #endif
+
   FastLED.addLeds<NEOPIXEL, 2>(leds, 0 * NUM_LEDS_PER_STRIP, NUM_LEDS_PER_STRIP);
   // FastLED.addLeds<NEOPIXEL, 3>(leds, 1 * NUM_LEDS_PER_STRIP, NUM_LEDS_PER_STRIP);
   // FastLED.addLeds<NEOPIXEL, 4>(leds, 2 * NUM_LEDS_PER_STRIP, NUM_LEDS_PER_STRIP);
@@ -125,4 +154,8 @@ void loop() {
   // do some periodic updates
   EVERY_N_MILLISECONDS( COLOR_CHANGE_SPEED ) { gHue++; } // slowly cycle the "base color" through the rainbow
   EVERY_N_MILLISECONDS( 200 ) { goldHue++; }
+  
+  #ifdef TARGET_ESP8266
+    ArduinoOTA.handle();
+  #endif
 }
