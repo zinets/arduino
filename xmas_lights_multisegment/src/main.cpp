@@ -9,19 +9,16 @@
 #define FASTLED_ESP8266_D1_PIN_ORDER
 #include <FastLED.h>
 
-#define NUM_STRIPS 1
-#define START_PIN 2
-#define NUM_LEDS_PER_STRIP 17
-#define NUM_LEDS NUM_LEDS_PER_STRIP * NUM_STRIPS
-#define FRAMES_PER_SECOND  120
+#define NUM_LEDS            103
+#define FRAMES_PER_SECOND   60
 // скорость изменения цвета
-#define COLOR_CHANGE_SPEED 50 
+#define COLOR_CHANGE_SPEED  50 
 // частота вспышек
-#define GLITTER_FREQUENCY 200
+#define GLITTER_FREQUENCY   200
 // яркость вспышек
-#define GLITTER_INTENSITY 65
+#define GLITTER_INTENSITY   65
 
-CRGB leds[NUM_STRIPS * NUM_LEDS_PER_STRIP];
+CRGB leds[NUM_LEDS];
 uint8_t gHue = 0; 
 
 
@@ -39,7 +36,7 @@ void setup() {
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   while (WiFi.waitForConnectResult() != WL_CONNECTED) {
-    Serial.println("Connection Failed! Rebooting...");
+    // Serial.println("Connection Failed! Rebooting...");
     delay(5000);
     ESP.restart();
   }
@@ -51,19 +48,13 @@ void setup() {
   // Serial.println(WiFi.localIP());
   #endif
 
-  FastLED.addLeds<NEOPIXEL, 7>(leds, 0 * NUM_LEDS_PER_STRIP, NUM_LEDS_PER_STRIP);
-  // FastLED.addLeds<NEOPIXEL, 3>(leds, 1 * NUM_LEDS_PER_STRIP, NUM_LEDS_PER_STRIP);
-  // FastLED.addLeds<NEOPIXEL, 4>(leds, 2 * NUM_LEDS_PER_STRIP, NUM_LEDS_PER_STRIP);
-  // FastLED.addLeds<NEOPIXEL, 5>(leds, 3 * NUM_LEDS_PER_STRIP, NUM_LEDS_PER_STRIP);
-  // FastLED.addLeds<NEOPIXEL, 6>(leds, 4 * NUM_LEDS_PER_STRIP, NUM_LEDS_PER_STRIP);
-  // FastLED.addLeds<NEOPIXEL, 7>(leds, 5 * NUM_LEDS_PER_STRIP, NUM_LEDS_PER_STRIP);
+  FastLED.addLeds<NEOPIXEL, 7>(leds, 0, NUM_LEDS);
+  FastLED.addLeds<NEOPIXEL, 5>(goldLeds, 0, NUM_GOLD_LEDS);
 
-  FastLED.addLeds<NEOPIXEL, 6>(goldLeds, 0, NUM_GOLD_LEDS);
-
-  FastLED.setBrightness(100); // 0 - 255
+  FastLED.setBrightness(180); // 0 - 255
 }
 
-void addGlitter( fract8 chanceOfGlitter) {
+void addGlitter(fract8 chanceOfGlitter) {
   if( random8() < chanceOfGlitter) {
     leds[ random16(NUM_LEDS) ] += CRGB::White;
   }
@@ -77,9 +68,9 @@ void rainbow() {
 void rainbowWithGlitter() {
   // built-in FastLED rainbow, plus some random sparkly glitter
   rainbow();
-  EVERY_N_MILLISECONDS( GLITTER_FREQUENCY ) { 
-    addGlitter(GLITTER_INTENSITY); 
-  }   
+  // EVERY_N_MILLISECONDS( GLITTER_FREQUENCY ) { 
+  //   addGlitter(GLITTER_INTENSITY); 
+  // }   
 }
 
 CRGB gBackgroundColor = CRGB::Black;
@@ -145,7 +136,7 @@ void drawTwinkles(CRGB* L, uint16_t N) {
 
 void loop() {
   rainbowWithGlitter();
-  drawTwinkles(goldLeds, NUM_GOLD_LEDS);
+  // drawTwinkles(goldLeds, NUM_GOLD_LEDS);
 
   FastLED.show();  
   // insert a delay to keep the framerate modest
