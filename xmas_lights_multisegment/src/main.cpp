@@ -1,12 +1,19 @@
 // OTA support
 #ifdef TARGET_ESP8266
+#define OTA
+
+#ifdef OTA
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 #endif
 
+
+#endif
+
 #define FASTLED_ESP8266_D1_PIN_ORDER
+#define FASTLED_ALLOW_INTERRUPTS 0
 #include <FastLED.h>
 
 #define NUM_LEDS            103
@@ -14,22 +21,26 @@
 // скорость изменения цвета
 #define COLOR_CHANGE_SPEED  50 
 // частота вспышек
-#define GLITTER_FREQUENCY   200
+#define GLITTER_FREQUENCY   100
 // яркость вспышек
 #define GLITTER_INTENSITY   65
+
+#define COMMON_FREQUENCY    99
 
 CRGB leds[NUM_LEDS];
 uint8_t gHue = 0; 
 
 
 // gold stipes
-#define NUM_GOLD_LEDS 17
+#define NUM_GOLD_LEDS       149
 CRGB goldLeds[NUM_GOLD_LEDS];
 uint8_t goldHue = 0; 
 
 void setup() {
 
   #ifdef TARGET_ESP8266
+
+  #ifdef OTA
   // TODO: WiFi-manager
   const char* ssid = "Hamster-wifi";
   const char* password = "134679852";
@@ -47,31 +58,26 @@ void setup() {
   // Serial.print("IP address: ");
   // Serial.println(WiFi.localIP());
   #endif
+  #endif
 
   FastLED.addLeds<NEOPIXEL, 7>(leds, 0, NUM_LEDS);
   FastLED.addLeds<NEOPIXEL, 5>(goldLeds, 0, NUM_GOLD_LEDS);
 
-  FastLED.setBrightness(180); // 0 - 255
+  FastLED.setBrightness(220); // 0 - 255
 }
 
 void addGlitter(fract8 chanceOfGlitter) {
-  if( random8() < chanceOfGlitter) {
-    leds[ random16(NUM_LEDS) ] += CRGB::White;
+  if (random8() < chanceOfGlitter) {
+    leds[random16(NUM_LEDS)] += CRGB::White;
   }
 }
 
-void rainbow() {
-  // FastLED's built-in rainbow generator
-  fill_rainbow( leds, NUM_LEDS, gHue, 7);
-}
-
-void rainbowWithGlitter() {
-  // built-in FastLED rainbow, plus some random sparkly glitter
-  rainbow();
-  // EVERY_N_MILLISECONDS( GLITTER_FREQUENCY ) { 
-  //   addGlitter(GLITTER_INTENSITY); 
-  // }   
-}
+// void rainbowWithGlitter() {
+//   fill_rainbow( leds, NUM_LEDS, gHue, 2);
+//   EVERY_N_MILLISECONDS( GLITTER_FREQUENCY ) { 
+//     addGlitter(GLITTER_INTENSITY); 
+//   }   
+// }
 
 CRGB gBackgroundColor = CRGB::Black;
 
@@ -135,18 +141,21 @@ void drawTwinkles(CRGB* L, uint16_t N) {
 }
 
 void loop() {
-  rainbowWithGlitter();
-  // drawTwinkles(goldLeds, NUM_GOLD_LEDS);
+  fill_rainbow( leds, NUM_LEDS, gHue, 2);
+  drawTwinkles(goldLeds, NUM_GOLD_LEDS);
+
+  EVERY_N_MILLISECONDS (COMMON_FREQUENCY) {
+    gHue++;
+    goldHue++;
+    addGlitter(GLITTER_INTENSITY); 
+  }
 
   FastLED.show();  
-  // insert a delay to keep the framerate modest
   FastLED.delay(1000 / FRAMES_PER_SECOND); 
 
-  // do some periodic updates
-  EVERY_N_MILLISECONDS( COLOR_CHANGE_SPEED ) { gHue++; } // slowly cycle the "base color" through the rainbow
-  EVERY_N_MILLISECONDS( 200 ) { goldHue++; }
-  
   #ifdef TARGET_ESP8266
+  #ifdef OTA
     ArduinoOTA.handle();
+  #endif
   #endif
 }
