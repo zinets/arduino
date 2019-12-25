@@ -59,7 +59,7 @@ const TProgmemRGBPalette16 Gold_p FL_PROGMEM = {
   CRGB::Orange, CRGB::Orange, CRGB::Orange, CRGB::Orange,
   CRGB::Orange, CRGB::Orange, CRGB::Orange, CRGB::Orange,
   CRGB::Orange, CRGB::Orange, CRGB::Orange, CRGB::Orange,
-  CRGB::Orange, CRGB::Orange, CRGB::Orange, CRGB::Orange,
+  CRGB::Orange, CRGB::Orange, CRGB::Orange, CRGB::Orange,  
 };
 CRGBPalette16 gCurrentPalette = Gold_p;
 
