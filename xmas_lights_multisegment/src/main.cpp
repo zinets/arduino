@@ -51,14 +51,14 @@ void setup() {
   // Serial.println(WiFi.localIP());
   #endif
 
-  FastLED.addLeds<NEOPIXEL, 2>(leds, 0 * NUM_LEDS_PER_STRIP, NUM_LEDS_PER_STRIP);
+  FastLED.addLeds<NEOPIXEL, 7>(leds, 0 * NUM_LEDS_PER_STRIP, NUM_LEDS_PER_STRIP);
   // FastLED.addLeds<NEOPIXEL, 3>(leds, 1 * NUM_LEDS_PER_STRIP, NUM_LEDS_PER_STRIP);
   // FastLED.addLeds<NEOPIXEL, 4>(leds, 2 * NUM_LEDS_PER_STRIP, NUM_LEDS_PER_STRIP);
   // FastLED.addLeds<NEOPIXEL, 5>(leds, 3 * NUM_LEDS_PER_STRIP, NUM_LEDS_PER_STRIP);
   // FastLED.addLeds<NEOPIXEL, 6>(leds, 4 * NUM_LEDS_PER_STRIP, NUM_LEDS_PER_STRIP);
   // FastLED.addLeds<NEOPIXEL, 7>(leds, 5 * NUM_LEDS_PER_STRIP, NUM_LEDS_PER_STRIP);
 
-  FastLED.addLeds<NEOPIXEL, 7>(goldLeds, 0, NUM_GOLD_LEDS);
+  FastLED.addLeds<NEOPIXEL, 6>(goldLeds, 0, NUM_GOLD_LEDS);
 
   FastLED.setBrightness(100); // 0 - 255
 }
