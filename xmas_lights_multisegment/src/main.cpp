@@ -18,12 +18,8 @@
 
 #define NUM_LEDS            103
 #define FRAMES_PER_SECOND   60
-// скорость изменения цвета
-#define COLOR_CHANGE_SPEED  50 
-// частота вспышек
-#define GLITTER_FREQUENCY   100
-// яркость вспышек
-#define GLITTER_INTENSITY   65
+// частота вспышек (** против 255)
+#define GLITTER_INTENSITY   20
 
 #define COMMON_FREQUENCY    99
 
