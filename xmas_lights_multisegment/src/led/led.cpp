@@ -21,10 +21,14 @@ CRGB goldLeds[NUM_GOLD_LEDS];
 uint8_t goldHue = 0; 
 
 bool nightMode = false;
-
 void setNightMode(bool mode) {
     nightMode = mode;
     FastLED.setBrightness(nightMode ? BRIGHTNES_NIGHT : BRIGHTNES_DAY);  
+}
+
+bool isGlitterEnabled = true;
+void setGlitterEnabled(bool enabled) {
+    isGlitterEnabled = enabled;
 }
 
 void setupLeds() {
@@ -114,9 +118,11 @@ void handleLights() {
     drawTwinkles(goldLeds, NUM_GOLD_LEDS);
 
     EVERY_N_MILLISECONDS (COMMON_FREQUENCY) {
-    gHue++;
-    goldHue++;
-    addGlitter(GLITTER_INTENSITY); 
+        gHue++;
+        goldHue++;
+        if (isGlitterEnabled) {
+            addGlitter(GLITTER_INTENSITY); 
+        }
     }
 
     FastLED.show();  

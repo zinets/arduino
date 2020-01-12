@@ -2,17 +2,20 @@
 #include "led\led.h"
 ESP8266WebServer server(80);
 
-void handleRoot() {
-  // String s = MAIN_page; //Read HTML contents
-  server.send(200, "text/html", "hello from esp8266!"); //Send web page
-}
-
 void sendState() {
     String state = "State is:<br>  night mode is ";
     if (nightMode) {
-        state += "On";
+        state += "On (<a href = \"/day\">turn off</a>)";
     } else {
-        state += "Off";
+        state += "Off (<a href = \"/night\">turn on</a>)";
+    }
+
+
+    state += "<br>  glitter is ";
+    if (isGlitterEnabled) {
+        state += "On (<a href = \"/glitter?state=0\">turn off</a>)";
+    } else {
+        state += "Off (<a href = \"/glitter?state=1\">turn on</a>)";
     }
 
     server.send(200, "text/html", state);
@@ -36,13 +39,19 @@ void setupWiFi() {
     // Serial.print("IP address: ");
     // Serial.println(WiFi.localIP());
 
-    server.on("/", handleRoot);  
+    server.on("/", [](){
+        sendState();
+    });  
     server.on("/night", []() {
         setNightMode(true);
         sendState();
     });
     server.on("/day", []() {
         setNightMode(false);
+        sendState();
+    });
+    server.on("/glitter", [](){
+        setGlitterEnabled(server.arg("state") == "1"); 
         sendState();
     });
 

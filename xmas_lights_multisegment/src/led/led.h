@@ -5,6 +5,9 @@
 extern bool nightMode;
 void setNightMode(bool mode);
 
+extern bool isGlitterEnabled;
+void setGlitterEnabled(bool enabled);
+
 void setupLeds();
 void handleLights();
 
