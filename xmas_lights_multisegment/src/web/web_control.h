@@ -16,5 +16,5 @@
 
 extern ESP8266WebServer server;
 
-
+void setupWiFi();
 #endif
