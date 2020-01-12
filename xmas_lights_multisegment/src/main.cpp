@@ -1,14 +1,13 @@
 // OTA support
 #ifdef TARGET_ESP8266
-#define OTA
 
-#ifdef OTA
 #include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+#include <ESP8266WebServer.h>
+
 #include <ESP8266mDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
-#endif
-
 
 #endif
 
@@ -26,17 +25,24 @@
 CRGB leds[NUM_LEDS];
 uint8_t gHue = 0; 
 
-
 // gold stipes
 #define NUM_GOLD_LEDS       149
 CRGB goldLeds[NUM_GOLD_LEDS];
 uint8_t goldHue = 0; 
 
+// web control
+// #include "index.h"
+ESP8266WebServer server(80);
+
+void handleRoot() {
+  // String s = MAIN_page; //Read HTML contents
+  server.send(200, "text/html", "hello from esp8266!"); //Send web page
+}
+
 void setup() {
 
   #ifdef TARGET_ESP8266
 
-  #ifdef OTA
   // TODO: WiFi-manager
   const char* ssid = "Hamster-wifi";
   const char* password = "134679852";
@@ -54,12 +60,15 @@ void setup() {
   // Serial.print("IP address: ");
   // Serial.println(WiFi.localIP());
   #endif
-  #endif
 
   FastLED.addLeds<NEOPIXEL, 7>(leds, 0, NUM_LEDS);
   FastLED.addLeds<NEOPIXEL, 5>(goldLeds, 0, NUM_GOLD_LEDS);
 
-  FastLED.setBrightness(220); // 0 - 255
+  FastLED.setBrightness(160); // 0 - 255
+
+  server.on("/", handleRoot);  
+  server.begin();
+
 }
 
 void addGlitter(fract8 chanceOfGlitter) {
@@ -150,8 +159,8 @@ void loop() {
   FastLED.delay(1000 / FRAMES_PER_SECOND); 
 
   #ifdef TARGET_ESP8266
-  #ifdef OTA
-    ArduinoOTA.handle();
-  #endif
+  ArduinoOTA.handle();
+
+  server.handleClient(); 
   #endif
 }
