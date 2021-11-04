@@ -44,6 +44,6 @@ void shownum(int number) {
 
 void displayTime(DateTime time) {
   uint8_t sec = time.second();
-  shownum(sec);
+  shownum(sec % 10);
 
 }
