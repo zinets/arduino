@@ -1,5 +1,6 @@
 #include "digits.h"
 
+
 CRGB leds[NUM_LEDS];
 CRGB colors[10] = {
   CRGB::SandyBrown,
@@ -35,8 +36,14 @@ void setupLed() {
 void shownum(int number) {
   char mask = digits[number];
   for (int x = 0; x < 8; x++) {
-    CRGB color = mask >> x & 0x1 == 1 ? colors[number] : CRGB::Black;
+    CRGB color = (mask >> x & 0x1) == 1 ? colors[number] : CRGB::Black;
     leds[x] = color;
   }  
   FastLED.show();  
+}
+
+void displayTime(DateTime time) {
+  uint8_t sec = time.second();
+  shownum(sec);
+
 }
