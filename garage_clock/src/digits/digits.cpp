@@ -35,7 +35,7 @@ void setupLed() {
 
 void shownum(int number) {
   char mask = digits[number];
-  for (int x = 0; x < 8; x++) {
+  for (int x = 0; x < 7; x++) {
     CRGB color = (mask >> x & 0x1) == 1 ? colors[number] : CRGB::Black;
     leds[x] = color;
   }  

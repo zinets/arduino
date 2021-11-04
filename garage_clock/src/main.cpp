@@ -42,21 +42,10 @@ void setup() {
 
 
 void loop() {
-  // for (int i = 0; i < 10; i++) {
-  //   shownum(i);
-  
-  //   delay(DELAY);
-  // }
-
   DateTime time = rtc.now();
   Serial.println(String("DateTime::TIMESTAMP_TIME:\t")+time.timestamp(DateTime::TIMESTAMP_FULL));
 
   displayTime(time);
 
   delay(1000);
-
-  // if (b) {
-  //   Serial.println("piu");
-  //   b = 0;
-  // }
 }
