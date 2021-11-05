@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
+
 #include <WiFiUdp.h>
+#include <NTPClient.h>
 
 char ssid[] = "OnePlus 7";
 char pass[] = "134679852";    
@@ -36,7 +38,16 @@ void setup() {
   if (WiFi.status() == WL_CONNECTED) {
     Serial.println("Wifi connected");
 
+    const long utcOffsetInSeconds = 3 * 3600;
+    WiFiUDP ntpUDP;
+    NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
+    
+    timeClient.begin();
+    timeClient.update();
 
+    Serial.println(timeClient.getFormattedTime());
+
+    timeClient.end();
   }
 
   if (!rtc.begin()) {
