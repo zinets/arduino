@@ -10,7 +10,6 @@ char pass[] = "134679852";
 #include "digits/digits.h"
 
 RTC_DS1307 rtc;
-// DateTime time;
 
 #define DELAY 1500
 

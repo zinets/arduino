@@ -33,17 +33,34 @@ void setupLed() {
     FastLED.setBrightness(100);
 }
 
-void shownum(int number) {
+void showDigit(int startIndex, int number) {
   char mask = digits[number];
   for (int x = 0; x < 7; x++) {
     CRGB color = (mask >> x & 0x1) == 1 ? colors[number] : CRGB::Black;
-    leds[x] = color;
-  }  
-  FastLED.show();  
+    leds[startIndex + x] = color;
+  }     
+}
+
+void showDots(int startIndex, bool visible) {
+  CRGB color = visible ? CRGB::Indigo : CRGB::Black;
+  leds[startIndex] = color;
+  leds[startIndex + 1] = color;
 }
 
 void displayTime(DateTime time) {
-  uint8_t sec = time.second();
-  shownum(sec % 10);
 
+  int d = time.hour() / 10;
+  showDigit(0, d);
+  d = time.hour() % 10;
+  showDigit(7, d);
+  
+  d = time.second() % 2;
+  showDots(14, d == 0);
+
+  d = time.minute() / 10;
+  showDigit(16, d);
+  d = time.minute() % 10;
+  showDigit(23, d);
+  
+  FastLED.show(); 
 }
