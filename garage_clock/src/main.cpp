@@ -1,4 +1,9 @@
 #include <Arduino.h>
+#include <ESP8266WiFi.h>
+#include <WiFiUdp.h>
+
+char ssid[] = "OnePlus 7";
+char pass[] = "134679852";    
 
 #include "digits/digits.h"
 
@@ -16,10 +21,23 @@ IRAM_ATTR void updateTime() {
 void setup() {
   delay(1000);
 
-  setupLed();
-
   Serial.begin(19200);
   Serial.println("setup begin");
+
+  WiFi.begin(ssid, pass);
+  int i = 10;
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+    if (--i < 0) {
+      break;
+    }
+  }
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("Wifi connected");
+
+
+  }
 
   if (!rtc.begin()) {
     Serial.println("Couldn't find RTC");
@@ -35,6 +53,8 @@ void setup() {
   // rtc.writeSqwPinMode(DS1307_SquareWave1HZ);
   // pinMode(RTC_SQUARE_PIN, INPUT);
   // attachInterrupt(digitalPinToInterrupt(RTC_SQUARE_PIN), updateTime, RISING);
+
+  setupLed();
 
   Serial.println("setup done");
 }
