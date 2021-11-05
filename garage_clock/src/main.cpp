@@ -26,39 +26,45 @@ void setup() {
   Serial.begin(19200);
   Serial.println("setup begin");
 
+  DateTime defaultDate = DateTime(F(__DATE__), F(__TIME__));
+  if (!rtc.begin()) {
+    Serial.println("Couldn't find RTC");
+    Serial.flush();
+    abort();
+  }
+  
   WiFi.begin(ssid, pass);
-  int i = 10;
+  int i = 15;
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
-    Serial.print(".");
+    Serial.println(".");
     if (--i < 0) {
       break;
     }
   }
+  
   if (WiFi.status() == WL_CONNECTED) {
     Serial.println("Wifi connected");
 
-    const long utcOffsetInSeconds = 3 * 3600;
+    const long utcOffsetInSeconds = 2 * 3600;
     WiFiUDP ntpUDP;
     NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
     
     timeClient.begin();
     timeClient.update();
 
-    Serial.println(timeClient.getFormattedTime());
+    defaultDate = DateTime(timeClient.getEpochTime());
+    Serial.println(String("set date:\t") + defaultDate.timestamp(DateTime::TIMESTAMP_FULL));
+    rtc.adjust(defaultDate);
 
     timeClient.end();
+    WiFi.disconnect();
   }
 
-  if (!rtc.begin()) {
-    Serial.println("Couldn't find RTC");
-    Serial.flush();
-    abort();
-  }
-
+  
   if (!rtc.isrunning()) {
     Serial.println("RTC is NOT running, let's set the time!");
-    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+    rtc.adjust(defaultDate);
   }
 
   // rtc.writeSqwPinMode(DS1307_SquareWave1HZ);
