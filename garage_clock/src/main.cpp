@@ -14,10 +14,10 @@ RTC_DS1307 rtc;
 
 #define DELAY 1500
 
-volatile int b = 0;
+volatile bool ready = true;
 
 IRAM_ATTR void updateTime() {
-  b = 1;
+  ready = true;
 }
 
 void setup() {
@@ -34,9 +34,9 @@ void setup() {
   }
   
   WiFi.begin(ssid, pass);
-  int i = 15;
+  int i = 30;
   while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
+    delay(650);
     Serial.println(".");
     if (--i < 0) {
       break;
@@ -67,9 +67,9 @@ void setup() {
     rtc.adjust(defaultDate);
   }
 
-  // rtc.writeSqwPinMode(DS1307_SquareWave1HZ);
-  // pinMode(RTC_SQUARE_PIN, INPUT);
-  // attachInterrupt(digitalPinToInterrupt(RTC_SQUARE_PIN), updateTime, RISING);
+  pinMode(RTC_SQUARE_PIN, INPUT);
+  rtc.writeSqwPinMode(DS1307_SquareWave1HZ);
+    attachInterrupt(digitalPinToInterrupt(RTC_SQUARE_PIN), updateTime, RISING);
 
   setupLed();
 
@@ -79,10 +79,16 @@ void setup() {
 
 
 void loop() {
-  DateTime time = rtc.now();
-  Serial.println(String("DateTime::TIMESTAMP_TIME:\t")+time.timestamp(DateTime::TIMESTAMP_FULL));
+  // DateTime time = rtc.now();
+  // Serial.println(String("DateTime::TIMESTAMP_TIME:\t")+time.timestamp(DateTime::TIMESTAMP_FULL));
 
-  displayTime(time);
+  // displayTime(time);
 
-  delay(1000);
+  // delay(1000);
+  if (ready) {
+    ready = false;
+
+    DateTime time = rtc.now();
+    displayTime(time);
+  }
 }
