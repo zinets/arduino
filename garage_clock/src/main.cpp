@@ -59,7 +59,6 @@ void setup() {
     timeClient.end();
     WiFi.disconnect();
   }
-
   
   if (!rtc.isrunning()) {
     Serial.println("RTC is NOT running, let's set the time!");
@@ -68,14 +67,12 @@ void setup() {
 
   pinMode(RTC_SQUARE_PIN, INPUT);
   rtc.writeSqwPinMode(DS1307_SquareWave1HZ);
-    attachInterrupt(digitalPinToInterrupt(RTC_SQUARE_PIN), updateTime, RISING);
+  attachInterrupt(digitalPinToInterrupt(RTC_SQUARE_PIN), updateTime, RISING);
 
   setupLed();
 
   Serial.println("setup done");
 }
-
-
 
 void loop() {
   // DateTime time = rtc.now();
