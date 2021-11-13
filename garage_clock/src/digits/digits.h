@@ -14,6 +14,9 @@
 #define RTC_SQUARE_PIN  D3
 
 void setupLed();
+void showStartScreen();
+void showErrorScreen();
+
 // показываем время - точки тупо показывать для четных секунд
 void displayTime(DateTime time);
 

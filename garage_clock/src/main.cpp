@@ -20,18 +20,31 @@ IRAM_ATTR void updateTime() {
 }
 
 void setup() {
-  delay(1000);
+  delay(2000);
 
   Serial.begin(19200);
   Serial.println("setup begin");
 
+  setupLed();
+  showStartScreen();
+  delay(500);
+
   DateTime defaultDate = DateTime(F(__DATE__), F(__TIME__));
   if (!rtc.begin()) {
+    showErrorScreen();
     Serial.println("Couldn't find RTC");
     Serial.flush();
     abort();
   }
-  
+
+  if (!rtc.isrunning()) {
+    Serial.println("RTC is NOT running, let's set the time!");
+    rtc.adjust(defaultDate);
+  }
+
+  DateTime time = rtc.now();
+  displayTime(time);
+
   WiFi.begin(ssid, pass);
   int i = 30;
   while (WiFi.status() != WL_CONNECTED) {
@@ -59,17 +72,10 @@ void setup() {
     timeClient.end();
     WiFi.disconnect();
   }
-  
-  if (!rtc.isrunning()) {
-    Serial.println("RTC is NOT running, let's set the time!");
-    rtc.adjust(defaultDate);
-  }
 
   pinMode(RTC_SQUARE_PIN, INPUT);
   rtc.writeSqwPinMode(DS1307_SquareWave1HZ);
   attachInterrupt(digitalPinToInterrupt(RTC_SQUARE_PIN), updateTime, RISING);
-
-  setupLed();
 
   Serial.println("setup done");
 }

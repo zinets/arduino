@@ -1,19 +1,6 @@
 #include "digits.h"
 
-
 CRGB leds[NUM_LEDS];
-CRGB colors[10] = {
-  CRGB::SandyBrown,
-  CRGB::Sienna,
-  CRGB::Salmon,
-  CRGB::SandyBrown,
-  CRGB::SeaGreen,
-  CRGB::Seashell,
-  CRGB::Sienna,
-  CRGB::Silver,
-  CRGB::SkyBlue,
-  CRGB::SlateBlue,
-};
 
 char digits[10] = {
   0b0111111, 
@@ -28,21 +15,25 @@ char digits[10] = {
   0b1101111,
   };
 
+const CRGB onDot = CRGB::Fuchsia;
+const CRGB updatingDot = CRGB::Green;
+const CRGB errorDot = CRGB::Red;
+
 void setupLed() {
     FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
-    FastLED.setBrightness(100);
+    FastLED.setBrightness(200);
 }
 
 void showDigit(int startIndex, int number) {
   char mask = digits[number];
   for (int x = 0; x < 7; x++) {
-    CRGB color = (mask >> x & 0x1) == 1 ? colors[number] : CRGB::Black;
+    CRGB color = (mask >> x & 0x1) == 1 ? CRGB::Fuchsia : CRGB::Black;
     leds[startIndex + x] = color;
   }     
 }
 
 void showDots(int startIndex, bool visible) {
-  CRGB color = visible ? CRGB::Indigo : CRGB::Black;
+  CRGB color = visible ? onDot : CRGB::Black;
   leds[startIndex] = color;
   leds[startIndex + 1] = color;
 }
@@ -63,4 +54,24 @@ void displayTime(DateTime time) {
   showDigit(23, d);
   
   FastLED.show(); 
+}
+
+void showStartScreen() {
+  for (int x = 0; x < NUM_LEDS; x++) {
+    leds[x] = CRGB::Black;    
+  }
+  int onIndexes[] = {0, 7, 16, 23, 24, 25, 26, 19, 10, 3, 4, 5};
+  for (int x = 0; x < 12; x++) {
+    leds[onIndexes[x]] = CRGB::Green;
+  }
+}
+
+void showErrorScreen() {
+  for (int x = 0; x < NUM_LEDS; x++) {
+    leds[x] = CRGB::Black;    
+  }
+  int onIndexes[] = {6, 13, 22, 29};
+  for (int x = 0; x < 4; x++) {
+    leds[onIndexes[x]] = errorDot;
+  }
 }
