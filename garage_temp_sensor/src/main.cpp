@@ -46,6 +46,7 @@ void setup(void) {
   tft.setCursor(30, 80);
   tft.setTextColor(WHITE);
   
+  tft.drawLine(0, 80, 127, 80, GREY);
 }
 
 void loop() {
@@ -69,36 +70,64 @@ void loop() {
   displayHumidity(h);
 }
 
-int lastTemp = 0;
+float lastTemp = 0;
 void displayTemperature(float main_temp) {
-  tft.setTextSize(3);
+  if (main_temp == lastTemp) {
+    return;
+  }
 
+  int scale = 5;
+  tft.setTextSize(scale);
+
+  int x = 5;
+  int y = 80 - 2 - scale * 8;
   tft.setTextColor(BLACK);
-  tft.setCursor(5, 20);
-  String temperatureValue = String(lastTemp) + (char)247 + "C";
-  tft.print(temperatureValue);
-
-  tft.setTextColor(WHITE);
-  tft.setCursor(5, 20);
-  temperatureValue = String(int(main_temp)) + (char)247 + "C";
+  tft.setCursor(x, y);
+  String temperatureValue = String(lastTemp, 0); 
   tft.print(temperatureValue);
 
   lastTemp = int(main_temp);
+  tft.setTextColor(WHITE);
+  tft.setCursor(x, y);
+  temperatureValue = String(lastTemp, 0); 
+  tft.print(temperatureValue);
+
+  int textScale = scale - 2;
+  tft.setTextSize(textScale);
+  x += 2 * 6 * scale + 4;
+  y = 80 - 2 - textScale * 8;
+  tft.setCursor(x, y);
+  String sign = String((char)247) + "C";  
+  tft.print(sign);
 }
 
-int lastHum = 0;
+float lastHum = 0;
 void displayHumidity(float h) {
-  tft.setTextSize(3);
+  if (lastHum == h) {
+    return;
+  }
 
+  int scale = 5;
+  tft.setTextSize(scale);
+
+  int x = 5;
+  int y = 80 + 6;
   tft.setTextColor(BLACK);
-  tft.setCursor(5, 100);
-  String value = String(lastHum) + "%";
+  tft.setCursor(x, y);
+  String value = String(lastHum, 0); 
   tft.print(value);
 
-  tft.setTextColor(WHITE);
-  tft.setCursor(5, 100);
-  
   lastHum = int(h);
-  value = String(lastHum) + "%";
+  tft.setTextColor(WHITE);
+  tft.setCursor(x, y);
+  value = String(lastHum, 0); 
   tft.print(value);
+
+  int textScale = scale - 2;
+  tft.setTextSize(textScale);
+  x += 2 * 6 * scale + 4;
+  y = 80 + 6;
+  tft.setCursor(x, y);
+  String sign = "%";  
+  tft.print(sign);
 }
