@@ -2,47 +2,22 @@
 #include <Adafruit_ST7735.h> // Hardware-specific library for ST7735
 #include "Adafruit_I2CDevice.h"
 
-#include <Adafruit_Sensor.h>
-#include <DHT.h>
-#include <DHT_U.h>
+#include "DHT.h"
+
+#define DHTPIN D2 
+#define DHTTYPE DHT11 
 
 #define cs   D8
 #define dc   D3
 #define rst  D4
-#define DHTPIN D1
 
-#define DHTTYPE    DHT11
 uint32_t delayMS;
 
 Adafruit_ST7735 tft = Adafruit_ST7735(cs, dc, rst);
-DHT_Unified dht(DHTPIN, DHTTYPE);
+DHT dht(DHTPIN, DHTTYPE);
 
 void displayTemperature(float main_temp);
-
-void loop() {
-  delay(delayMS);
-  // Get temperature event and print its value.
-  sensors_event_t event;
-  dht.temperature().getEvent(&event);
-  if (isnan(event.temperature)) {
-    Serial.println(F("Error reading temperature!"));
-  }
-  else {
-    Serial.print(F("Temperature: "));
-    Serial.print(event.temperature);
-    Serial.println(F("°C"));
-  }
-  // Get humidity event and print its value.
-  dht.humidity().getEvent(&event);
-  if (isnan(event.relative_humidity)) {
-    Serial.println(F("Error reading humidity!"));
-  }
-  else {
-    Serial.print(F("Humidity: "));
-    Serial.print(event.relative_humidity);
-    Serial.println(F("%"));
-  }
-}
+void displayHumidity(float h);
 
 #define BLACK    0x0000
 #define BLUE     0x001F
@@ -54,10 +29,11 @@ void loop() {
 #define WHITE    0xFFFF
 #define GREY     0xC618
 
-
-
 void setup(void) {
-   Serial.begin(9600);
+  Serial.begin(9600);
+
+  Serial.println(F("DHTxx test!"));
+  dht.begin();
 
   Wire.begin();
 
@@ -69,42 +45,60 @@ void setup(void) {
   tft.fillScreen(BLACK);
   tft.setCursor(30, 80);
   tft.setTextColor(WHITE);
-  tft.setTextSize(1);
-  tft.print("Ready");
-
-  dht.begin();
-  Serial.println(F("DHTxx Unified Sensor Example"));
-  // Print temperature sensor details.
-  sensor_t sensor;
-  dht.temperature().getSensor(&sensor);
-  Serial.println(F("------------------------------------"));
-  Serial.println(F("Temperature Sensor"));
-  Serial.print  (F("Sensor Type: ")); Serial.println(sensor.name);
-  Serial.print  (F("Driver Ver:  ")); Serial.println(sensor.version);
-  Serial.print  (F("Unique ID:   ")); Serial.println(sensor.sensor_id);
-  Serial.print  (F("Max Value:   ")); Serial.print(sensor.max_value); Serial.println(F("°C"));
-  Serial.print  (F("Min Value:   ")); Serial.print(sensor.min_value); Serial.println(F("°C"));
-  Serial.print  (F("Resolution:  ")); Serial.print(sensor.resolution); Serial.println(F("°C"));
-  Serial.println(F("------------------------------------"));
-  // Print humidity sensor details.
-  dht.humidity().getSensor(&sensor);
-  Serial.println(F("Humidity Sensor"));
-  Serial.print  (F("Sensor Type: ")); Serial.println(sensor.name);
-  Serial.print  (F("Driver Ver:  ")); Serial.println(sensor.version);
-  Serial.print  (F("Unique ID:   ")); Serial.println(sensor.sensor_id);
-  Serial.print  (F("Max Value:   ")); Serial.print(sensor.max_value); Serial.println(F("%"));
-  Serial.print  (F("Min Value:   ")); Serial.print(sensor.min_value); Serial.println(F("%"));
-  Serial.print  (F("Resolution:  ")); Serial.print(sensor.resolution); Serial.println(F("%"));
-  Serial.println(F("------------------------------------"));
-  // Set delay between sensor readings based on sensor details.
-  delayMS = sensor.min_delay / 1000;
+  
 }
 
+void loop() {
+  delay(5000);
+
+  float h = dht.readHumidity();
+  float t = dht.readTemperature();
+
+  // Check if any reads failed and exit early (to try again).
+  if (isnan(h) || isnan(t))  {
+    Serial.println(F("Failed to read from DHT sensor!"));
+    return;
+  }
+  Serial.print(F("Humidity: "));
+  Serial.print(h);
+  Serial.print(F("%  Temperature: "));
+  Serial.print(t);
+  Serial.print(F("°C "));
+
+  displayTemperature(t);
+  displayHumidity(h);
+}
+
+int lastTemp = 0;
 void displayTemperature(float main_temp) {
-  tft.setTextColor(WHITE);
   tft.setTextSize(3);
 
+  tft.setTextColor(BLACK);
   tft.setCursor(5, 20);
-  String temperatureValue = String(main_temp) + (char)247 + "C";
+  String temperatureValue = String(lastTemp) + (char)247 + "C";
   tft.print(temperatureValue);
+
+  tft.setTextColor(WHITE);
+  tft.setCursor(5, 20);
+  temperatureValue = String(int(main_temp)) + (char)247 + "C";
+  tft.print(temperatureValue);
+
+  lastTemp = int(main_temp);
+}
+
+int lastHum = 0;
+void displayHumidity(float h) {
+  tft.setTextSize(3);
+
+  tft.setTextColor(BLACK);
+  tft.setCursor(5, 100);
+  String value = String(lastHum) + "%";
+  tft.print(value);
+
+  tft.setTextColor(WHITE);
+  tft.setCursor(5, 100);
+  
+  lastHum = int(h);
+  value = String(lastHum) + "%";
+  tft.print(value);
 }
