@@ -83,10 +83,10 @@ void drawMaxCount(int value) {
   display.display();
 }
 
-bool modeSetup = false;
-int resetButtonPressTime;
-int buttonPressDuration;
-bool waitResetButton = false;
+volatile bool modeSetup = false;
+volatile int resetButtonPressTime;
+volatile int buttonPressDuration;
+volatile bool waitResetButton = false;
 
 void loop() {
   b_plus.update();
@@ -104,32 +104,40 @@ void loop() {
       modeSetup = false;
       drawCurrent(getCounter(), getMaxCount());
       resetButtonPressTime = millis();
+      waitResetButton = false;  
+      Serial.println("1");
     }
 
 
   } else {    
 
     
-    if (b_plus.fell()) {
+    if (b_plus.rose()) {
       setCounter(getCounter() + 1);
     }
-    if (b_minus.fell()) {
+    if (b_minus.rose()) {
       setCounter(getCounter() - 1);
     }
     
     if (b_reset.fell()) {
+      Serial.println("b_reset.fell()");
       waitResetButton = true;
       resetButtonPressTime = millis();
     }
+    int d = millis() - resetButtonPressTime;
     if (b_reset.rose()) {
-      buttonPressDuration = millis() - resetButtonPressTime;
+      Serial.println("b_reset.rose()");
+      buttonPressDuration = d;
       waitResetButton = false;
     }
-    if (waitResetButton && millis() - resetButtonPressTime > 1000) {
+    if (waitResetButton && d > 1000) {
+      Serial.println("waitResetButton && millis().. > 1000");
+      Serial.println(d);
       modeSetup = true;
       buttonPressDuration = 0;
       drawMaxCount(getMaxCount());
     } else if (buttonPressDuration > 0) {
+      Serial.println("just reset");
       setCounter(0);
       buttonPressDuration = 0;
     }
