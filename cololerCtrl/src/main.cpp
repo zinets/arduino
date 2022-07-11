@@ -11,6 +11,8 @@ EncButton<EB_TICK, 5, 6, 7> enc;  // энкодер с кнопкой <CLK, DT, 
 const int counter_addr = 22;
 volatile int counter = 50;
 
+int fanPin = 9;
+
 void updateDisplay() {
   display.setTextSize(4);
   display.clearDisplay();
@@ -21,21 +23,40 @@ void updateDisplay() {
   display.display();
 }
 
-void setup() {
-  display.begin(SH1106_SWITCHCAPVCC, 0x3C);
-  
-  display.setRotation(2);
-  display.setTextColor(WHITE);
-  
-  Serial.begin(9600);
-
-  counter = EEPROM.read(counter_addr) < 255 ? : 50;
-  updateDisplay();
+void setPwmFrequency(int pin, int divisor) {
+  byte mode;
+  if(pin == 5 || pin == 6 || pin == 9 || pin == 10) {
+    switch(divisor) {
+      case 1: mode = 0x01; break;
+      case 8: mode = 0x02; break;
+      case 64: mode = 0x03; break;
+      case 256: mode = 0x04; break;
+      case 1024: mode = 0x05; break;
+      default: return;
+    }
+    if(pin == 5 || pin == 6) {
+      TCCR0B = TCCR0B & 0b11111000 | mode;
+    } else {
+      TCCR1B = TCCR1B & 0b11111000 | mode;
+    }
+  } else if(pin == 3 || pin == 11) {
+    switch(divisor) {
+      case 1: mode = 0x01; break;
+      case 8: mode = 0x02; break;
+      case 32: mode = 0x03; break;
+      case 64: mode = 0x04; break;
+      case 128: mode = 0x05; break;
+      case 256: mode = 0x06; break;
+      case 1024: mode = 0x07; break;
+      default: return;
+    }
+    TCCR2B = TCCR2B & 0b11111000 | mode;
+  }
 }
 
 void incCounter() {
   if (counter < 100) {
-    counter++;
+    counter += 2;
 
     EEPROM.write(counter_addr, counter);
   } else {
@@ -45,12 +66,28 @@ void incCounter() {
 
 void decCounter() {
   if (counter > 50) {
-    counter--;
+    counter -= 2;
 
     EEPROM.write(counter_addr, counter);
   } else {
     counter = 50;
   }
+}
+
+void setup() {
+  pinMode(fanPin, OUTPUT);
+
+  display.begin(SH1106_SWITCHCAPVCC, 0x3C);
+  
+  display.setRotation(2);
+  display.setTextColor(WHITE);
+  
+  Serial.begin(9600);
+
+  counter = max(50, min(100, EEPROM.read(counter_addr)));
+  updateDisplay();
+
+  setPwmFrequency(fanPin, 1);
 }
 
 void loop() {
@@ -67,4 +104,8 @@ void loop() {
 
     updateDisplay();
   }
+
+  int i = map(counter, 50, 100, 180, 255);
+  analogWrite(fanPin, i);  
+
 }
