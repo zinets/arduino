@@ -8,8 +8,10 @@ Adafruit_SH1106 display(OLED_RESET);
 EncButton<EB_TICK, 5, 6, 7> enc;  // энкодер с кнопкой <CLK, DT, SW>
 
 #include <EEPROM.h>
-const int counter_addr = 22;
+const int counter_addr = 1;
 volatile int counter = 50;
+const int cooler_state_addr = 2;
+bool coolerOff = false;
 
 int fanPin = 9;
 
@@ -18,7 +20,11 @@ void updateDisplay() {
   display.clearDisplay();
 
   display.setCursor(28, 20);
-  display.print(counter);
+  if (coolerOff) {
+    display.print("Off");
+  } else {
+    display.print(counter);
+  }
   
   display.display();
 }
@@ -54,6 +60,12 @@ void setPwmFrequency(int pin, int divisor) {
   }
 }
 
+// читать "установить выключенное состояние".. дурацкое имя, но пусть уже будет, работает
+void setCoolerState(bool state) {
+  coolerOff = state;
+  EEPROM.write(cooler_state_addr, state);
+}
+
 void incCounter() {
   if (counter < 100) {
     counter += 2;
@@ -62,6 +74,7 @@ void incCounter() {
   } else {
     counter = 100;
   }
+  setCoolerState(false);
 }
 
 void decCounter() {
@@ -72,7 +85,9 @@ void decCounter() {
   } else {
     counter = 50;
   }
+  setCoolerState(false);
 }
+
 
 void setup() {
   pinMode(fanPin, OUTPUT);
@@ -85,6 +100,7 @@ void setup() {
   Serial.begin(9600);
 
   counter = max(50, min(100, EEPROM.read(counter_addr)));
+  coolerOff = EEPROM.read(cooler_state_addr);
   updateDisplay();
 
   setPwmFrequency(fanPin, 1);
@@ -93,7 +109,10 @@ void setup() {
 void loop() {
   enc.tick();
 
-  if (enc.left()) {
+  if (enc.click()) {    
+    setCoolerState(!coolerOff);
+    updateDisplay();
+  } else if (enc.left()) {
     incCounter();
   } else if (enc.right()) {
     decCounter();
@@ -105,7 +124,7 @@ void loop() {
     updateDisplay();
   }
 
-  int i = map(counter, 50, 100, 180, 255);
+  int i = coolerOff ? 0 : map(counter, 50, 100, 150, 255);
   analogWrite(fanPin, i);  
 
 }
