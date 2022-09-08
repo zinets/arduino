@@ -2,6 +2,8 @@
 #include <Adafruit_ST7735.h>
 #include <SPI.h>
 
+#include <Fonts/FreeMonoBold24pt7b.h>
+
 #define TFT_CS      15  // D8
 #define TFT_RST     4   // D2
 #define TFT_DC      5   // A0 -> D1
@@ -11,42 +13,46 @@
 
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 
-void tftPrintTest() {
-  tft.setTextWrap(false);
-  tft.fillScreen(ST77XX_BLACK);
-  tft.setCursor(0, 30);
-  tft.setTextColor(ST77XX_RED);
-  tft.setTextSize(1);
-  tft.println("Hello World!");
-  tft.setTextColor(ST77XX_YELLOW);
-  tft.setTextSize(2);
-  tft.println("Hello World!");
-  tft.setTextColor(ST77XX_GREEN);
-  tft.setTextSize(3);
-  tft.println("Hello World!");
-  tft.setTextColor(ST77XX_BLUE);
-  tft.setTextSize(4);
-  tft.print(1234.567);
-  delay(1500);
-  tft.setCursor(0, 0);
-  tft.fillScreen(ST77XX_BLACK);
-  tft.setTextColor(ST77XX_WHITE);
-  tft.setTextSize(0);
-  tft.println("Hello World!");
-  tft.setTextSize(1);
-  tft.setTextColor(ST77XX_GREEN);
-  tft.println(" ");
-  tft.print(8675309, HEX); // print 8,675,309 out in HEX!
-  tft.println(" Print HEX!");
-  tft.println(" ");
-  tft.setTextColor(ST77XX_WHITE);
-  tft.println("Sketch has been");
-  tft.println("running for: ");
-  tft.setTextColor(ST77XX_MAGENTA);
-  tft.print(millis() / 1000);
-  tft.setTextColor(ST77XX_WHITE);
-  tft.print(" seconds.");
+void drawUkr() {
+  tft.setFont(&FreeMonoBold24pt7b);
+
+  tft.fillRect(0, 0, 160, 64, ST7735_BLUE);
+  tft.fillRect(0, 64, 160, 64, ST7735_YELLOW);
+
+  int inset = 3;
+  int w = 28;
+  int x = (160 - 2 * w) / 2;
+  tft.fillRect(x - inset, 52 - inset, 2 * w + 2 * inset, 24 + 2 * inset, ST7735_BLACK);
+
+  tft.setCursor(x, 52 + 24);
+  tft.print("UA");
 }
+
+void drawRus() {
+  tft.setFont(&FreeMonoBold24pt7b);
+
+  tft.fillRect(0, 0, 160, 43, ST7735_WHITE);
+  tft.fillRect(0, 43, 160, 43, ST7735_BLUE);
+  tft.fillRect(0, 86, 160, 44, ST7735_RED);
+
+  int inset = 3;
+  int w = 28;
+  int x = (160 - 2 * w) / 2;
+  tft.fillRect(x - inset, 52 - inset, 2 * w + 2 * inset, 24 + 2 * inset, ST7735_BLACK);
+
+  tft.setCursor(x, 52 + 24);
+  tft.print("RU");
+
+  tft.setFont();
+  tft.setTextSize(2);
+  tft.setCursor(50, 13);
+  tft.setTextColor(ST7735_BLACK);
+  tft.print("putin");
+  tft.setCursor(62, 99);
+  tft.setTextColor(ST7735_WHITE);
+  tft.print("huy");
+}
+
 
 void setup() {  
   Serial.begin(9600);
@@ -54,12 +60,15 @@ void setup() {
   
   tft.initR(INITR_BLACKTAB);     
   tft.fillScreen(ST77XX_BLACK);
-  tftPrintTest();  
+  tft.setRotation(1);
+  
+
+  drawRus();
 }
 
+
+
+
 void loop() {
-  // tft.invertDisplay(true);
-  // delay(500);
-  // tft.invertDisplay(false);
-  // delay(500);
+  
 }
