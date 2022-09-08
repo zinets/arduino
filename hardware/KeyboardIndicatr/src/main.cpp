@@ -15,6 +15,7 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 
 void drawUkr() {
   tft.setFont(&FreeMonoBold24pt7b);
+  tft.setTextSize(1);
 
   tft.fillRect(0, 0, 160, 64, ST7735_BLUE);
   tft.fillRect(0, 64, 160, 64, ST7735_YELLOW);
@@ -28,8 +29,25 @@ void drawUkr() {
   tft.print("UA");
 }
 
+void drawEng() {
+  tft.setFont(&FreeMonoBold24pt7b);
+  tft.setTextSize(1);
+
+  tft.fillRect(0, 0, 160, 64, ST7735_BLACK);
+  tft.fillRect(0, 64, 160, 64, ST7735_BLACK);
+
+  int inset = 3;
+  int w = 28;
+  int x = (160 - 2 * w) / 2;
+  tft.fillRect(x - inset, 52 - inset, 2 * w + 2 * inset, 24 + 2 * inset, ST7735_BLACK);
+
+  tft.setCursor(x, 52 + 24);
+  tft.print("EN");
+}
+
 void drawRus() {
   tft.setFont(&FreeMonoBold24pt7b);
+  tft.setTextSize(1);
 
   tft.fillRect(0, 0, 160, 43, ST7735_WHITE);
   tft.fillRect(0, 43, 160, 43, ST7735_BLUE);
@@ -56,19 +74,37 @@ void drawRus() {
 
 void setup() {  
   Serial.begin(9600);
-  Serial.print(F("Hello! ST77xx TFT Test"));
   
   tft.initR(INITR_BLACKTAB);     
   tft.fillScreen(ST77XX_BLACK);
   tft.setRotation(1);
   
 
-  drawRus();
+  drawEng();
 }
 
 
 
+int lastLayout = 0;
 
 void loop() {
-  
+  if (Serial.available() > 0) {
+    int incoming = Serial.read();
+    if (incoming != lastLayout) {
+      lastLayout = incoming;
+      switch (incoming) {
+        case 50: 
+          drawEng();
+          break;
+        case 51: 
+          drawRus();
+          break;
+        case 52:
+          drawUkr();
+          break;
+        default:
+          break;
+      }
+    }
+  }
 }
