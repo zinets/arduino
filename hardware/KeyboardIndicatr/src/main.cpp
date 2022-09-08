@@ -2,9 +2,12 @@
 #include <Adafruit_ST7735.h>
 #include <SPI.h>
 
-#define TFT_CS      15
-#define TFT_RST     4
-#define TFT_DC      5
+#define TFT_CS      15  // D8
+#define TFT_RST     4   // D2
+#define TFT_DC      5   // A0 -> D1
+// #define TFT_SDA         D7
+// #define TFT_SCK         D5
+// LED - 3.3 !!! 
 
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 
