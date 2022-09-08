@@ -13,6 +13,8 @@
 
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 
+const int inset = 3;
+
 void drawUkr() {
   tft.setFont(&FreeMonoBold24pt7b);
   tft.setTextSize(1);
@@ -20,7 +22,6 @@ void drawUkr() {
   tft.fillRect(0, 0, 160, 64, ST7735_BLUE);
   tft.fillRect(0, 64, 160, 64, ST7735_YELLOW);
 
-  int inset = 3;
   int w = 28;
   int x = (160 - 2 * w) / 2;
   tft.fillRect(x - inset, 52 - inset, 2 * w + 2 * inset, 24 + 2 * inset, ST7735_BLACK);
@@ -36,7 +37,6 @@ void drawEng() {
   tft.fillRect(0, 0, 160, 64, ST7735_BLACK);
   tft.fillRect(0, 64, 160, 64, ST7735_BLACK);
 
-  int inset = 3;
   int w = 28;
   int x = (160 - 2 * w) / 2;
   tft.fillRect(x - inset, 52 - inset, 2 * w + 2 * inset, 24 + 2 * inset, ST7735_BLACK);
@@ -53,7 +53,6 @@ void drawRus() {
   tft.fillRect(0, 43, 160, 43, ST7735_BLUE);
   tft.fillRect(0, 86, 160, 44, ST7735_RED);
 
-  int inset = 3;
   int w = 28;
   int x = (160 - 2 * w) / 2;
   tft.fillRect(x - inset, 52 - inset, 2 * w + 2 * inset, 24 + 2 * inset, ST7735_BLACK);
@@ -93,18 +92,24 @@ void loop() {
     if (incoming != lastLayout) {
       lastLayout = incoming;
       switch (incoming) {
-        case 50: 
+        case 1: 
           drawEng();
           break;
-        case 51: 
+        case 2: 
           drawRus();
           break;
-        case 52:
+        case 3:
           drawUkr();
           break;
         default:
+          // tft.fillScreen(ST7735_BLACK);
           break;
       }
     }
+
+    // tft.setFont();
+    // tft.setCursor(0, 0);
+    // tft.setTextSize(1);
+    // tft.print(incoming);
   }
 }
